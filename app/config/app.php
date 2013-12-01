@@ -65,7 +65,7 @@ return array(
 	|
 	*/
 
-	'key' => 'V4nZhc5iTVyyQoM43m7nOtZa9lpe6K6V',
+	'key' => 'RXuhxVl3iyCWPWNb0cCk7phwtmombwTX',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -113,6 +113,8 @@ return array(
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
 		'Illuminate\Workbench\WorkbenchServiceProvider',
+        'Way\Generators\GeneratorsServiceProvider',
+        'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 
 	),
 

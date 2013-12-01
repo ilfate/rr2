@@ -11,7 +11,42 @@
 |
 */
 
-Route::get('/', function()
+Route::get('/', array('as' => 'main', 'uses' => 'MainController@index'));
+
+Route::resource('roles', 'RolesController');
+
+Route::get('logout', array('as' => 'login.logout', 'uses' => 'LoginController@logout'));
+
+Route::group(array('before' => 'un_auth'), function()
 {
-	return View::make('hello');
+    Route::get('login', array('as' => 'login.index', 'uses' => 'LoginController@index'));
+    Route::get('register', array('as' => 'login.register', 'uses' => 'LoginController@register'));
+    Route::post('login', array('uses' => 'LoginController@login'));
+    Route::post('register', array('uses' => 'LoginController@store'));
+});
+
+Route::group(array('before' => 'user.auth'), function()
+{
+    Route::get('dashboard', function()
+    {
+        return View::make('login.dashboard');
+    });
+
+    Route::resource('roles', 'RolesController');
+
+    Route::controller('home', 'HomeController');
+});
+
+Route::filter('user.auth', function()
+{
+    if (Auth::guest()) {
+        return Redirect::to('login');
+    }
+});
+
+Route::filter('un_auth', function()
+{
+    if (!Auth::guest()) {
+        Auth::logout();
+    }
 });

@@ -1,6 +1,6 @@
 <?php
 
-class HomeController extends BaseController {
+class MainController extends BaseController {
 
 	/*
 	|--------------------------------------------------------------------------
@@ -15,10 +15,9 @@ class HomeController extends BaseController {
 	|
 	*/
 
-	public function getIndex()
+	public function index()
 	{
-        $wizards = DB::table('wizards')->where('user_id', Auth::user()->id)->get();
-		return View::make('home.index')->with('wizards', $wizards);
+		return View::make('main');
 	}
 
 }
