@@ -57,7 +57,7 @@ return array(
 			'host'      => 'localhost',
 			'database'  => 'wizards',
 			'username'  => 'root',
-			'password'  => '12317233',
+			'password'  => '',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
 			'prefix'    => '',

@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Redirect;
+
 class HomeController extends BaseController {
 
 	/*
@@ -18,7 +20,21 @@ class HomeController extends BaseController {
 	public function getIndex()
 	{
         $wizards = DB::table('wizards')->where('user_id', Auth::user()->id)->get();
+        if (!$wizards) {
+            return Redirect::to('home/create-wizard');
+        }
 		return View::make('home.index')->with('wizards', $wizards);
 	}
+
+    public function getCreateWizard()
+    {
+        $wizardsConfig = Config::get('wizards.wizards');
+        return View::make('home.createWizard')->with('wizardsConfig', $wizardsConfig);
+    }
+
+    public function postCreateWizard()
+    {
+        return Redirect::to('home');
+    }
 
 }
