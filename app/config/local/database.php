@@ -2,12 +2,9 @@
 
 return array(
 
-    'connections' => array(
-
+	'connections' => array(
 		'mysql' => array(
-			'password'  => '12317233'
+			'password'  => '12317233',
 		),
-
-    )
-
+	),
 );

@@ -35,6 +35,7 @@ Route::group(array('before' => 'user.auth'), function()
     Route::resource('roles', 'RolesController');
 
     Route::controller('home', 'HomeController');
+    Route::controller('wizard', 'WizardController');
 });
 
 Route::filter('user.auth', function()

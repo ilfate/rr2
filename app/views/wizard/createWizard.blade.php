@@ -2,13 +2,13 @@
 
 @section('content')
 
-{{ Form::open(array('url' => 'home/create-wizard')) }}
+{{ Form::open(array('url' => 'wizard/create-wizard')) }}
 <table class="table table-striped table-bordered">
     <tbody>
-    @foreach ($wizardsConfig as $wizard)
+    @foreach ($wizardsConfig as $type => $wizard)
     <tr>
         <td>
-
+            {{ Form::radio('type', $type) }}
         </td>
     </tr>
     @endforeach

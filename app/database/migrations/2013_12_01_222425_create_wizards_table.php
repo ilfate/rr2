@@ -15,7 +15,7 @@ class CreateWizardsTable extends Migration {
         Schema::create('wizards', function(Blueprint $table) {
             $table->increments('id');
             $table->integer('user_id')->unsigned()->index();
-            $table->string('name', 20);
+            $table->string('name', 18);
             $table->integer('level')->unsigned()->default(1);
             $table->enum('class', array('fire', 'life', 'might'));
             $table->text('data');
