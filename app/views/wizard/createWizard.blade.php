@@ -8,7 +8,8 @@
     @foreach ($wizardsConfig as $type => $wizard)
     <tr>
         <td>
-            {{ Form::radio('type', $type) }}
+            {{ Form::label('type['.$type.']', $type) }}
+            {{ Form::radio('type', $type, false, array('id' => 'type['.$type.']')) }}
         </td>
     </tr>
     @endforeach

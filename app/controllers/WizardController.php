@@ -2,13 +2,18 @@
 
 use Illuminate\Support\Facades\Redirect;
 
-class HomeController extends BaseController {
+class WizardController extends BaseController {
 
-
-
-	public function getIndex()
+    /**
+     * @param $id
+     *
+     * @return \Illuminate\View\View
+     */
+    public function getOverview($id)
 	{
-
+        $wizardModel = new Wizard();
+        $wizard = $wizardModel->findOrFail($id);
+        return View::make('wizard.overview')->with('wizard', $wizard);
 	}
 
     /**

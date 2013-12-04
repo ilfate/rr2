@@ -6,14 +6,18 @@
 <table class="table table-striped table-bordered">
     <thead>
     <tr>
-        <th>Role</th>
+        <th>Wizards</th>
     </tr>
     </thead>
 
     <tbody>
     @foreach ($wizards as $wizard)
     <tr>
-        <td>{{{ $wizard->name }}}</td>
+        <td>
+            <a href="/wizard/overview/{{{ $wizard->id }}}" 'class'='btn btn-info' >
+            {{{ $wizard->name }}}
+            </a>
+        </td>
         <td>{{{ $wizard->level }}}</td>
     </tr>
     @endforeach

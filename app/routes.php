@@ -13,8 +13,6 @@
 
 Route::get('/', array('as' => 'main', 'uses' => 'MainController@index'));
 
-Route::resource('roles', 'RolesController');
-
 Route::get('logout', array('as' => 'login.logout', 'uses' => 'LoginController@logout'));
 
 Route::group(array('before' => 'un_auth'), function()
@@ -36,6 +34,7 @@ Route::group(array('before' => 'user.auth'), function()
 
     Route::controller('home', 'HomeController');
     Route::controller('wizard', 'WizardController');
+
 });
 
 Route::filter('user.auth', function()
