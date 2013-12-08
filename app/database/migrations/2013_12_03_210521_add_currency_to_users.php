@@ -16,7 +16,7 @@ class AddCurrencyToUsers extends Migration {
         {
             $table->bigInteger('coins')->after('username')->default(0);
             $table->bigInteger('crystals')->after('coins')->default(0);
-            $table->timestamp('last_visit')->after('crystals')->default(0);
+            $table->timestamp('last_visit')->after('crystals');
         });
 	}
 

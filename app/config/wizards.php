@@ -4,9 +4,9 @@
 return array(
 
     'types' => array(
-        1 => 'fire',
-        2 => 'life',
-        3 => 'might'
+        'fire',
+        'life',
+        'might'
     ),
 
     'buyPrice' => array(
