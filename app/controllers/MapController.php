@@ -138,7 +138,7 @@ class MapController extends BaseController {
     {
         $possibleTypes  = Config::get('maps.types');
         $possibleSpawns = Config::get('maps.spawns');
-        $possibleBioms = Config::get('maps.bioms');
+        $possibleBioms = Config::get('maps.biomTypes');
         View::share('possibleTypes', array_combine($possibleTypes, $possibleTypes));
         View::share('possibleSpawns', array_combine($possibleSpawns, $possibleSpawns));
         View::share('possibleBioms', array_combine($possibleBioms, $possibleBioms));
@@ -161,7 +161,7 @@ class MapController extends BaseController {
             'height' => 'required|numeric',
             'chunk_size' => 'numeric',
             'max_players' => 'numeric',
-            'bioms' => 'arrayIn:' . implode(',', Config::get('maps.bioms')),
+            'bioms' => 'arrayIn:' . implode(',', Config::get('maps.biomTypes')),
             'type' => 'required|in:' . implode(',', Config::get('maps.types')),
             'spawn' => 'required|in:' . implode(',', Config::get('maps.spawns')),
         );

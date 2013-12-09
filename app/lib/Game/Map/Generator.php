@@ -7,18 +7,41 @@
 
 namespace Game\Map;
 
+use Game\Math;
+
 class Generator {
 
     const DEFAULT_MULTIPLY_COEFFICIENT = 2;
     /**
-     * @var array
+     * @var MapObject
      */
     protected $map;
 
-    public function __construct($map)
+
+
+    public function __construct(MapObject $map)
     {
         $this->map = $map;
     }
+
+    /**
+     * Full map will be generated
+     */
+    public function generateFullMap(\Chunk $chunkModel)
+    {
+        for($x = 1; $x <= $this->map->mapWidth; $x++) {
+            for($y = 1; $y <= $this->map->mapHeight; $y++) {
+                $chunk = $this->getChunk($x, $y);
+                $chunk['battle_map_id'] = $this->map->battleMapId;
+                $chunk['biom_id'] = $chunk['biom'];
+                unset($chunk['cellsParsed']);
+                unset($chunk['biom']);
+                $chunkModel->insert($chunk);
+            }
+        }
+    }
+
+
 
     public function getChunk($x, $y)
     {
@@ -32,15 +55,16 @@ class Generator {
         }
         $chunk['biom'] = $this->getBiomByNeibours($list);
         $chunk['cells'] = $this->generateCells($chunk);
-        $chunk['id'] = $this->map->getIdByCoords($chunk['x'], $chunk['y']);
-        Model_Map::createChunk($chunk);
+        $chunk['id'] = Geometry::getIdByCoords($chunk['x'], $chunk['y']);
+        //Model_Map::createChunk($chunk);
         return $chunk;
     }
 
     protected function getBiomByNeibours($neibours)
     {
         $chanses = [];
-        $bioms = $this->map->getConfig()['bioms_list'];
+        // list of possible bioms
+        $bioms = \Config::get('maps.biomsChances');
         foreach ($neibours as $neibour) {
             if ($neibour) {
                 if (!isset($chanses[$neibour['biom']])) {
@@ -61,10 +85,10 @@ class Generator {
 
     protected function generateCells(&$chunk)
     {
-        $addX = ($chunk['x'] - 1) * Game_Map::CHUNK_SIZE;
-        $addY = ($chunk['y'] - 1) * Game_Map::CHUNK_SIZE;
-        for ($i = 1; $i <= Game_Map::CHUNK_SIZE; $i++) {
-            for ($i2 = 1; $i2 <= Game_Map::CHUNK_SIZE; $i2++) {
+        $addX = ($chunk['x'] - 1) * $this->map->chunkSize;
+        $addY = ($chunk['y'] - 1) * $this->map->chunkSize;
+        for ($i = 1; $i <= $this->map->chunkSize; $i++) {
+            for ($i2 = 1; $i2 <= $this->map->chunkSize; $i2++) {
                 $x = $i2 + $addX;
                 $y = $i  + $addY;
                 $cell = $this->randomCell($x, $y, $chunk['biom']);
@@ -73,12 +97,12 @@ class Generator {
             }
         }
         // recheck cells
-        for ($i = 1; $i <= Game_Map::CHUNK_SIZE; $i++) {
-            for ($i2 = 1; $i2 <= Game_Map::CHUNK_SIZE; $i2++) {
+        for ($i = 1; $i <= $this->map->chunkSize; $i++) {
+            for ($i2 = 1; $i2 <= $this->map->chunkSize; $i2++) {
                 $x = $i2 + $addX;
                 $y = $i  + $addY;
 
-                $list = $this->map->getDirectNeiboursArray($x, $y);
+                $list = Geometry::getDirectNeiboursArray($x, $y);
 
                 $neighboursCounted = [];
                 $neighbours = $this->map->getCellsIfExists($list);
@@ -123,14 +147,13 @@ class Generator {
 
             $k = isset($conf[$cell]) ? $conf[$cell] : self::DEFAULT_MULTIPLY_COEFFICIENT;
             $chanses[$cell] += pow($value, $k);
-//      $chanses[$cell] += $value * 10;
         }
         return Math::customChance($chanses);
     }
 
     protected function getBiomChances($biom)
     {
-        $default = $this->map->getConfig()['default_biom'];
+        $default = \Config::get('maps.defaultBiom');
         $ret = $this->getBiomConfig($default, 'cells_chances');
         if ($biom == $default) {
             return $ret;
@@ -146,8 +169,8 @@ class Generator {
 
     protected function getBiomConfig($biom, $type, $exact = false)
     {
-        $conf = $this->map->getConfig();
-        $default = $conf['default_biom'];
+        $conf = \Config::get('maps');
+        $default = $conf['defaultBiom'];
         if (isset($conf['bioms'][$biom]) && isset($conf['bioms'][$biom][$type])) {
             return $conf['bioms'][$biom][$type];
         } elseif($exact) {

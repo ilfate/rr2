@@ -1,5 +1,8 @@
 <?php
 
+use Game\Map\MapObject;
+use Illuminate\Support\Facades\Redirect;
+
 class BattleMapController extends BaseController {
 
     /** @var  Map */
@@ -48,18 +51,16 @@ class BattleMapController extends BaseController {
      */
 	public function getFullGenerate($battleMapId)
 	{
-        //$battleMap = $this->battleMapModel->findOrFail($battleMapId);
+        $mapData = $this->battleMapModel->where('battle_maps.id', '=', $battleMapId)->join('maps', 'battle_maps.map_id', '=', 'maps.id')->get();
 
-        $mapData = $this->battleMapModel->where('battle_maps.id', '=', $battleMapId)->join('maps', 'battle_maps.map_id', '=', 'maps.id')->select(
-            'maps.width',
-            'maps.height',
-            'maps.chunk_size'
-        )->get();
+        $mapObject = new MapObject($mapData->toArray()[0]);
+        $mapObject->allowToLoadFromDb = false;
 
-        $generator = new Game\Map\Generator($mapData->toArray()[0]);
+        $generator = new Game\Map\Generator($mapObject);
+        $generator->generateFullMap($this->chunkModel);
 
        // $countChunks = $this->chunkModel->where('battle_map_id', '=', $battleMapId)->count();
 
-        return View::make('maps.create');
+        return Redirect::to('battle-map/show/' . $battleMapId);
 	}
 }
