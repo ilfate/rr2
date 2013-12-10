@@ -1,0 +1,42 @@
+.grid {
+
+}
+
+.map-grid{
+    width: 400px;
+    height: 400px;
+}
+
+.cell {
+    width: 4px;
+    height: 4px;
+    float: left;
+}
+
+.biom {
+    width: 40px;
+    height: 40px;
+    float: left;
+    position: relative;
+    border: 0px solid;
+}
+.biom-a { border-color: green; }
+.biom-b { border-color: blue; }
+.biom-c { border-color: #808080; }
+.biom-d { border-color: forestgreen; }
+
+.cell-a1 { background-color: green; }
+.cell-a2 { background-color: brown; }
+.cell-a3 { background-color: #808080; }
+.cell-a4 { background-color: #d3d3d3; }
+.cell-a5 { background-color: #999999; }
+.cell-a6 { background-color: #000000; }
+.cell-a7 { background-color: purple; }
+.cell-a8 { background-color: darkmagenta; }
+.cell-a9 { background-color: seagreen; }
+.cell-10 { background-color: forestgreen; }
+.cell-11 { background-color: darkolivegreen; }
+.cell-12 { background-color: peachpuff; }
+.cell-t1 { background-color: red; }
+.cell-w1 { background-color: blue; }
+.cell-s1 { background-color: greenyellow; }

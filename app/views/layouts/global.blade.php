@@ -9,6 +9,7 @@
 			.error { color: red; font-style: italic; }
 			body { padding-top: 20px; }
 		</style>
+        <link href="/css/game.css" rel="stylesheet" />
 	</head>
 
 	<body>

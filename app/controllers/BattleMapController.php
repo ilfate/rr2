@@ -33,18 +33,38 @@ class BattleMapController extends BaseController {
      */
 	public function getShow($id)
 	{
-        $battleMap = $this->battleMapModel->findOrFail($id);
-
+        $startX = 1;
+        $startY = 1;
+        $rangeX = 11;
+        $rangeY = 11;
         $countChunks = $this->chunkModel->where('battle_map_id', '=', $id)->count();
         if ($countChunks > 0 && $countChunks < 1000) {
-            $chunks = $this->chunkModel->where('battle_map_id', '=', $id)->get();
+            $chunks = $this->chunkModel->where('battle_map_id', '=', $id)->get()->toArray();
+            $mapData = $this->battleMapModel->getBattleMapData($id);
+            $mapObject = new MapObject($mapData);
+            $mapObject->setChunks($chunks);
+            $mapObject->allowToLoadFromDb = false;
+
+            $list = [];
+
+            for ($i = $startY; $i < $rangeY; $i++) {
+                for ($i2 = $startX; $i2 < $rangeX; $i2++) {
+                    $list[] = [$i2, $i];
+                }
+            }
+            $grid = $mapObject->getChunks($list);
         } else {
-            $chunks = array();
+            $mapData = $this->battleMapModel->findOrFail($id);
+            $grid    = array();
         }
         return View::make('maps.battleMap')->with(array(
-            'battleMap'   => $battleMap,
+            'battleMap'   => $mapData,
             'countChunks' => $countChunks,
-            'chunks'      => $chunks
+            'grid'        => $grid,
+            'startX'      => $startX,
+            'startY'      => $startY,
+            'rangeX'      => $rangeX,
+            'rangeY'      => $rangeY
         ));
 	}
 
@@ -57,7 +77,7 @@ class BattleMapController extends BaseController {
      */
 	public function getFullGenerate($battleMapId)
 	{
-        $mapData = $this->battleMapModel->where('battle_maps.id', '=', $battleMapId)->join('maps', 'battle_maps.map_id', '=', 'maps.id')->get();
+        $mapData = $this->battleMapModel->getBattleMapData($battleMapId);
 
         $mapObject = new MapObject($mapData->toArray()[0]);
         $mapObject->allowToLoadFromDb = false;

@@ -41,7 +41,7 @@ class MapObject
 
         $allowedBiomsNames = explode('|', $mapData['bioms']);
         $biomChances = \Config::get('maps.biomsChances');
-        if ($allowedBiomsNames) {
+        if ($mapData['bioms']) {
             // If we have allowed bioms we want to keep only biom_id
             $biomTypes = \Config::get('maps.biomTypes');
             foreach ($allowedBiomsNames as $biomName) {
@@ -61,7 +61,6 @@ class MapObject
             $this->chunks[$chunk['x']][$chunk['y']] = $chunk;
             $this->explodeChunk($chunk, true);
         }
-        $this->chunks = $chunks;
     }
 
     /**
