@@ -31,19 +31,12 @@ class Generator {
     {
         for($x = 1; $x <= $this->map->mapWidth; $x++) {
             for($y = 1; $y <= $this->map->mapHeight; $y++) {
-                $chunk = $this->getChunk($x, $y);
-                $chunk['battle_map_id'] = $this->map->battleMapId;
-                $chunk['biom_id'] = $chunk['biom'];
-                unset($chunk['cellsParsed']);
-                unset($chunk['biom']);
-                $chunkModel->insert($chunk);
+                $chunkModel->addChunk($this->getChunk($x, $y), $this->map->battleMapId);
             }
         }
     }
 
-
-
-    public function getChunk($x, $y)
+    protected function getChunk($x, $y)
     {
         $chunk = ['x' => $x, 'y' => $y];
         $neibours = $this->map->getChunksNeiboursIfExists($x, $y);
@@ -56,17 +49,22 @@ class Generator {
         $chunk['biom'] = $this->getBiomByNeibours($list);
         $chunk['cells'] = $this->generateCells($chunk);
         $chunk['id'] = Geometry::getIdByCoords($chunk['x'], $chunk['y']);
-        //Model_Map::createChunk($chunk);
         return $chunk;
     }
 
+    /**
+     * Generate random biom_id with information about neibours
+     *
+     * @param $neibours
+     *
+     * @return bool|int|string
+     */
     protected function getBiomByNeibours($neibours)
     {
+        /** @var array $chanses custom chances by neibours */
         $chanses = [];
-        // list of possible bioms
-        $bioms = \Config::get('maps.biomsChances');
         foreach ($neibours as $neibour) {
-            if ($neibour) {
+            if ($neibour && isset($this->map->allowedBioms[$neibour['biom']])) {
                 if (!isset($chanses[$neibour['biom']])) {
                     $chanses[$neibour['biom']] = 0;
                 }
@@ -78,7 +76,7 @@ class Generator {
         }
         if(!isset($newBiom) || $newBiom === false) {
 
-            $newBiom = Math::customChance($bioms);
+            $newBiom = Math::customChance($this->map->allowedBioms);
         }
         return $newBiom;
     }

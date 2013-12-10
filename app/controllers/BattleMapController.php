@@ -36,9 +36,15 @@ class BattleMapController extends BaseController {
         $battleMap = $this->battleMapModel->findOrFail($id);
 
         $countChunks = $this->chunkModel->where('battle_map_id', '=', $id)->count();
+        if ($countChunks > 0 && $countChunks < 1000) {
+            $chunks = $this->chunkModel->where('battle_map_id', '=', $id)->get();
+        } else {
+            $chunks = array();
+        }
         return View::make('maps.battleMap')->with(array(
-            'battleMap' => $battleMap,
-            'countChunks' => $countChunks
+            'battleMap'   => $battleMap,
+            'countChunks' => $countChunks,
+            'chunks'      => $chunks
         ));
 	}
 

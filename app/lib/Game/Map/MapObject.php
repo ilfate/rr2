@@ -38,7 +38,20 @@ class MapObject
         $this->mapHeight = $mapData['height'];
         $this->chunkSize = $mapData['chunk_size'];
         $this->battleMapId = $mapData['id'];
-        $this->allowedBioms = explode('|', $mapData['bioms']);
+
+        $allowedBiomsNames = explode('|', $mapData['bioms']);
+        $biomChances = \Config::get('maps.biomsChances');
+        if ($allowedBiomsNames) {
+            // If we have allowed bioms we want to keep only biom_id
+            $biomTypes = \Config::get('maps.biomTypes');
+            foreach ($allowedBiomsNames as $biomName) {
+                $biom_id = array_search($biomName, $biomTypes);
+                $this->allowedBioms[$biom_id] = $biomChances[$biom_id];
+            }
+        } else { // all bioms are allowed
+            $this->allowedBioms = $biomChances;
+        }
+
         $this->chunkModel = $chunkModel;
     }
 
@@ -244,10 +257,10 @@ class MapObject
     {
         $ids = [];
         foreach ($list as $pair) {
-            $ids[] = $this->getIdByCoords($pair[0], $pair[1]);
+            $ids[] = Geometry::getIdByCoords($pair[0], $pair[1]);
         }
         sort($ids);
-        $result = Model_Map::getChunksById($ids);
+        $result = $this->chunkModel->getChunksById($ids);
         if ($result) {
             $this->setChunks($result);
         }

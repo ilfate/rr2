@@ -13,14 +13,15 @@ class CreateChunks extends Migration {
 	public function up()
 	{
 		Schema::create('chunks', function(Blueprint $table) {
-			$table->increments('id');
+			$table->integer('id');
 			$table->integer('battle_map_id')->unsigned()->index();
-			$table->integer('x');
-			$table->integer('y');
+			$table->integer('x')->unsigned();
+			$table->integer('y')->unsigned();
 			$table->string('cells', 200);
-			$table->integer('biom_id');
+			$table->integer('biom_id')->unsigned();
 
             $table->foreign('battle_map_id')->references('id')->on('battle_maps')->onDelete('cascade');
+            $table->index(array('id', 'battle_map_id'), 'IDX_ID_MAP_ID');
 		});
 	}
 

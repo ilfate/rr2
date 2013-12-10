@@ -12,12 +12,12 @@ return array(
     ),
 
     'biomTypes' => array(
-        '',
-        'forest',
-        'desert',
-        'lake',
-        'plain',
-        'mountains'
+        0 => '',
+        1 => 'forest',
+        2 => 'desert',
+        3 => 'lake',
+        4 => 'plain',
+        5 => 'mountains'
     ),
     'biomsChances' => [
         1 => 15,
@@ -26,14 +26,14 @@ return array(
     ],
     'defaultBiom' => 1,
     'bioms' => [
-        1 => [ // common grass biom
+        1 => [ // common forest
             'cells_chances' => [
                 'a1' => 40, // grass
                 'a2' => 12, // dirt
                 'a3' => 3,  //rocks
                 'a4' => 3,  //hole
                 'a5' => 2,  //pile,
-                'a6' => 10,  //trees,
+                'a6' => 16,  //trees,
                 'a7' => 2,  //puddle,
                 'w1' => 3,  //water,
                 's1' => 0,  //sand,
@@ -46,7 +46,26 @@ return array(
                 '10' => 4,
             ]
         ],
-        2 => [ // water biom
+        2 => [ // desert
+            'cells_chances' => [
+                'a1' => 2, // grass
+                'a2' => 3, // dirt
+                'a3' => 15,  //rocks
+                'a4' => 4,  //hole
+                'a5' => 2,  //pile,
+                'a6' => 2,  //trees,
+                'a7' => 2,  //puddle,
+                'w1' => 0,  //water,
+                's1' => 25,  //sand,
+                't1' => 0.4, //resourse breaching
+            ],
+            'cell_multiply_coefficients' => [
+                'a1' => 3,
+                'a3' => 5,
+                'a2' => 4,
+            ]
+        ],
+        3 => [ // water biom
             'cells_chances' => [
                 'a1' => 0, // grass
                 'a2' => 0, // dirt
@@ -63,25 +82,6 @@ return array(
                 'w1' => 3,
                 's1' => 5,
                 'a1' => 4,
-            ]
-        ],
-        3 => [ // rocks
-            'cells_chances' => [
-                'a1' => 25, // grass
-                'a2' => 15, // dirt
-                'a3' => 55,  //rocks
-                'a4' => 10,  //hole
-                'a5' => 2,  //pile,
-                'a6' => 2,  //trees,
-                'a7' => 2,  //puddle,
-                'w1' => 0,  //water,
-                's1' => 0,  //sand,
-                't1' => 0.4, //resourse breaching
-            ],
-            'cell_multiply_coefficients' => [
-                'a1' => 3,
-                'a3' => 5,
-                'a2' => 4,
             ]
         ],
     ],

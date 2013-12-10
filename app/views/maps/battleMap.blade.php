@@ -14,7 +14,14 @@
         </td>
         <td>
             {{{ $countChunks }}} chunks created
+            @if (!$countChunks)
             <a href="/battle-map/full-generate/{{{ $battleMap->id }}}"> Generate all</a>
+            @endif
+        </td>
+    </tr>
+    <tr>
+        <td>
+            draw chunks here from $chunks
         </td>
     </tr>
 
