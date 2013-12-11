@@ -3,7 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 
-class CreateChunks extends Migration {
+class CreateBattleWizards extends Migration {
 
 	/**
 	 * Run the migrations.
@@ -18,8 +18,8 @@ class CreateChunks extends Migration {
 			$table->integer('wizard_id')->unsigned();
 			$table->integer('user_id')->unsigned();
 			$table->integer('chunk_id')->unsigned();
-			$table->timestamp('start');
             $table->text('data');
+            $table->timestamps();
 
             $table->foreign('battle_map_id')->references('id')->on('battle_maps')->onDelete('cascade');
 		});

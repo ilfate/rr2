@@ -19,6 +19,15 @@
             </a>
         </td>
         <td>{{{ $wizard->level }}}</td>
+        <td>
+            @if ($availableBattleMaps)
+                @foreach ($availableBattleMaps as $map)
+                    {{ Form::open(array('method' => 'POST', 'url' => array('wizard/portal/' . $map->id . '/' . $wizard->id))) }}
+                    {{ Form::submit('Go to map ' . $map->id, array('class' => 'btn btn-info')) }}
+                    {{ Form::close() }}
+                @endforeach
+            @endif
+        </td>
     </tr>
     @endforeach
     </tbody>

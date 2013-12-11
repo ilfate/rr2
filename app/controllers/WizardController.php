@@ -4,6 +4,20 @@ use Illuminate\Support\Facades\Redirect;
 
 class WizardController extends BaseController {
 
+    /** @var BattleWizard */
+    protected $battleWizardModel;
+    /** @var Wizard */
+    protected $wizardModel;
+    /** @var BattleMap */
+    protected $battleMapModel;
+
+    public function __construct()
+    {
+        $this->battleWizardModel = new BattleWizard();
+        $this->wizardModel       = new Wizard();
+        $this->battleMapModel    = new BattleMap();
+    }
+
     /**
      * @param $id
      *
@@ -11,8 +25,7 @@ class WizardController extends BaseController {
      */
     public function getOverview($id)
 	{
-        $wizardModel = new Wizard();
-        $wizard = $wizardModel->findOrFail($id);
+        $wizard = $this->wizardModel->findOrFail($id);
         return View::make('wizard.overview')->with('wizard', $wizard);
 	}
 
@@ -60,6 +73,28 @@ class WizardController extends BaseController {
             ->withInput()
             ->withErrors($validator)
             ->with('message', 'There were validation errors.');
+    }
+
+    /**
+     * @param $battleMapId
+     * @param $wizardId
+     */
+    public function postPortal($battleMapId, $wizardId)
+    {
+        // here we are checking are we able to use this map and this wizard
+        $wizard    = $this->wizardModel->where('id', '=', $wizardId)->where('user_id', '=', Auth::user()->id)->get();
+        $battleMap = $this->battleMapModel->where('id', '=', $battleMapId)->where('active', '=', 1)->get();
+        if (!$wizard || !$battleMap) {
+            Redirect::to('home')->with('message', 'This action can not be performed');
+        }
+
+        $this->battleWizardModel->create(array(
+            'battle_map_id' => $battleMapId,
+            'wizard_id'     => $wizardId,
+            'user_id'       => Auth::user()->id,
+            'chunk_id'      => 0,
+            'data'          => '',
+        ));
     }
 
 }
