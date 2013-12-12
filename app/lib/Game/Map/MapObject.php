@@ -30,14 +30,17 @@ class MapObject
 
     public $allowToLoadFromDb = true;
 
-
+    /**
+     * @param array $mapData
+     * @param null  $chunkModel
+     */
     public function __construct($mapData, $chunkModel = null)
     {
         $this->mapData = $mapData;
         $this->mapWidth = $mapData['width'];
         $this->mapHeight = $mapData['height'];
         $this->chunkSize = $mapData['chunk_size'];
-        $this->battleMapId = $mapData['id'];
+        $this->battleMapId = $mapData['battle_map_id'];
 
         $allowedBiomsNames = explode('|', $mapData['bioms']);
         $biomChances = \Config::get('maps.biomsChances');

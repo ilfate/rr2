@@ -22,8 +22,15 @@ class GameExecuter {
     /** @var \BattleMap */
     protected $battleMapModel;
 
+    public $startTime;
+
+    const MAX_EXECUTIONS_TIMES = 12;
+    protected $executed        = 0;
+
     public function __construct()
     {
+        $this->startTime = microtime(true);
+
         $this->battleWizardModel = new \BattleWizard();
         $this->wizardModel       = new \Wizard();
         $this->battleMapModel    = new \BattleMap();
@@ -31,6 +38,34 @@ class GameExecuter {
 
     public function run()
     {
+        $this->executed++;
+
         $battleMaps = $this->battleMapModel->getBattleMapWithWizards();
+        if (!$battleMaps) {
+            $this->reRun();
+        }
+        $battleMapsCount = count($battleMaps);
+        for ($i = 0; $i < $battleMapsCount; $i++)
+        {
+            $game = new Game($battleMaps[$i], $this);
+            $game->run();
+        }
+
+        // TODO: log run results here
+    }
+
+    public function reRun()
+    {
+        if ($this->executed >= self::MAX_EXECUTIONS_TIMES)
+        {
+            // TODO: log cronjob results here
+            return;
+        }
+        //TODO: here we should wait and run one more time
+    }
+
+    public function loadAllChunks($battleMapId)
+    {
+
     }
 }
