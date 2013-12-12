@@ -4,7 +4,7 @@
  * @autor Ilya Rubinchik ilfate@gmail.com
  * 2013
  */
-namespace Game\Map;
+namespace Game\Geometry;
 
 class Geometry
 {

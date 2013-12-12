@@ -6,6 +6,9 @@
  */
 
 namespace Game\Map;
+
+use Game\Geometry\Geometry;
+
 /**
  * This class represents an instance of global Map
  */

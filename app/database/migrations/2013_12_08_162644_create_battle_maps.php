@@ -15,6 +15,7 @@ class CreateBattleMaps extends Migration {
 		Schema::create('battle_maps', function(Blueprint $table) {
 			$table->increments('id');
 			$table->integer('map_id')->unsigned()->index();
+			$table->integer('time')->unsigned()->default(0);
 			$table->boolean('active')->default(true);
 
 			$table->timestamps();

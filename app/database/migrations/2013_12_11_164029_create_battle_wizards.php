@@ -13,7 +13,7 @@ class CreateBattleWizards extends Migration {
 	public function up()
 	{
 		Schema::create('battle_wizards', function(Blueprint $table) {
-			$table->integer('id');
+			$table->increments('id');
 			$table->integer('battle_map_id')->unsigned()->index();
 			$table->integer('wizard_id')->unsigned();
 			$table->integer('user_id')->unsigned();

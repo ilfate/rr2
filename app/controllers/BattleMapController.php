@@ -69,6 +69,21 @@ class BattleMapController extends BaseController {
 	}
 
     /**
+     * Store a newly created resource in storage.
+     *
+     * @param $mapId
+     *
+     * @return Response
+     */
+    public function postCreate($mapId)
+    {
+        // by this load we are checking is this map exists
+        $map = $this->mapModel->findOrFail($mapId);
+        $this->battleMapModel->create(array('map_id' => $map->id));
+        return Redirect::to('map');
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @param $battleMapId

@@ -50,7 +50,7 @@ class LoginController extends BaseController
 
         Auth::loginUsingId($user->id);
 
-        return Redirect::home()->with('message', 'Thank you for registration');
+        return Redirect::to('home')->with('message', 'Thank you for registration');
 
     }
 

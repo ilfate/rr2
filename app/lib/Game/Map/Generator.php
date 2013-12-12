@@ -7,6 +7,7 @@
 
 namespace Game\Map;
 
+use Game\Geometry\Geometry;
 use Game\Math;
 
 class Generator {

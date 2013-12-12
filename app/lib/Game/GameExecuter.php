@@ -21,6 +21,8 @@ class GameExecuter {
     protected $wizardModel;
     /** @var \BattleMap */
     protected $battleMapModel;
+    /** @var \Chunk */
+    protected $chunkModel;
 
     public $startTime;
 
@@ -34,20 +36,22 @@ class GameExecuter {
         $this->battleWizardModel = new \BattleWizard();
         $this->wizardModel       = new \Wizard();
         $this->battleMapModel    = new \BattleMap();
+        $this->chunkModel        = new \Chunk();
     }
 
     public function run()
     {
         $this->executed++;
 
-        $battleMaps = $this->battleMapModel->getBattleMapWithWizards();
-        if (!$battleMaps) {
+        $battleMapsWithWizards = $this->battleMapModel->getBattleMapWithWizards();
+        if (!$battleMapsWithWizards) {
             $this->reRun();
+            return;
         }
-        $battleMapsCount = count($battleMaps);
+        $battleMapsCount = count($battleMapsWithWizards);
         for ($i = 0; $i < $battleMapsCount; $i++)
         {
-            $game = new Game($battleMaps[$i], $this);
+            $game = new Game($battleMapsWithWizards[$i], $this);
             $game->run();
         }
 
@@ -66,6 +70,6 @@ class GameExecuter {
 
     public function loadAllChunks($battleMapId)
     {
-
+        return $this->chunkModel->where('battle_map_id', '=', $battleMapId)->get();
     }
 }
