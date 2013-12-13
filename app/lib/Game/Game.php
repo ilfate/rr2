@@ -14,8 +14,9 @@
 namespace Game;
 
 use Game\Map\MapObject;
-use Game\Map\Geometry;
-use Game\Units\Wizard;
+use Game\Units\Wizards\Wizard;
+use Game\Units\Monsters;
+use Game\Units\Unit;
 
 class Game
 {
@@ -33,23 +34,29 @@ class Game
     /** @var MapObject */
     protected $map;
 
-    /** @var Wizard[] */
-    protected $wizards = array();
-    protected $countWizards;
-
+    /** @var integer current game time */
     protected $time;
 
+    /** @var Unit[] */
     protected $objects;
+    protected $countObjects;
 
+    /**
+     * @param $data
+     * @param $gameExecuter
+     */
     public function __construct($data, $gameExecuter)
     {
         $this->time = $data['time'];
         $this->gameExecuter = $gameExecuter;
         foreach ($data['wizards'] as $wizard) {
-            $this->wizards[] = new Wizard($wizard);
+            $wizardClass = ucfirst($wizard['class']);
+            $this->objects[] = new $wizardClass($wizard);
+            $wizardId = count($this->objects) - 1;
+            $this->objects[$wizardId]->objectId = $wizardId;
         }
-        $this->countWizards = count($data['wizards']);
         unset($data['wizards']);
+        $this->countObjects = count($this->objects);
         $this->map = new MapObject($data);
 
         // here we decide should we load all chunks for map or we will load only necessary ones
@@ -60,13 +67,33 @@ class Game
         }
     }
 
+    /**
+     * Main run method. One run = one tick
+     */
     public function run()
     {
-        for($i = 0; $i < $this->countWizards; $i++) {
-            $this->wizards[$i]->action($this->map, $this->wizards, $this->objects);
+        for($i = 0; $i < $this->countObjects; $i++) {
+            $this->objects[$i]->action($this->map, $this);
         }
 
+        $this->time += self::TIME_STEP;
+    }
 
-        $this->time += self::MAX_CELLS_IN_MAP_TO_LOAD_ALL_CHUNKS;
+    /**
+     * @param $id
+     *
+     * @return Unit
+     */
+    public function getUnit($id)
+    {
+        return $this->objects[$id];
+    }
+
+    /**
+     * @return int
+     */
+    public function getTime()
+    {
+        return $this->time;
     }
 }

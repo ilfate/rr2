@@ -5,9 +5,11 @@
  * 2013
  */
 
-namespace Game\Units;
+namespace Game\Units\Wizards;
 
-class Wizard extends Unit
+use Game\Units\Unit;
+
+abstract class Wizard extends Unit
 {
     public $wizardId;
     public $battleWizardId;

@@ -8,6 +8,7 @@
 namespace Game\Map;
 
 use Game\Geometry\Geometry;
+use Game\Units\Unit;
 
 /**
  * This class represents an instance of global Map
@@ -32,6 +33,11 @@ class MapObject
     protected $chunkModel;
 
     public $allowToLoadFromDb = true;
+
+    /**
+     * @var array An array of all objects that are exist on the map. Indexed by cells
+     */
+    public $objects = array();
 
     /**
      * @param array $mapData
@@ -67,6 +73,26 @@ class MapObject
             $this->chunks[$chunk['x']][$chunk['y']] = $chunk;
             $this->explodeChunk($chunk, true);
         }
+    }
+
+    /**
+     * Save all objects on map
+     *
+     * @param Unit $objects
+     */
+    public function putObjectsOnTheMap(Unit $objects)
+    {
+        foreach ($objects as $object) {
+            $this->addObjectToTheMap($object);
+        }
+
+    }
+    public function addObjectToTheMap(Unit $object)
+    {
+        if (!isset($this->objects[$object->point->x])) {
+            $this->objects[$object->point->x] = array();
+        }
+        $this->objects[$object->point->x][$object->point->y] = $object->objectId;
     }
 
     /**

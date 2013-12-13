@@ -27,7 +27,7 @@ class Action {
 
     }
 
-    public function progressCheck()
+    public function onProgress()
     {
 
     }
