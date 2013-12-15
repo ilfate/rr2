@@ -7,7 +7,9 @@
 
 namespace Game\Units\Wizards;
 
+use Game\Geometry\Point;
 use Game\Units\Unit;
+use Game\Units\Logic;
 
 abstract class Wizard extends Unit
 {
@@ -15,14 +17,32 @@ abstract class Wizard extends Unit
     public $battleWizardId;
     public $playerId;
     public $class;
+    public $userId;
 
-
-    public function __construct($wizardData)
+    public function __construct($game, $wizardData)
     {
+        $this->game = $game;
+        $data = $wizardData['data'];
+        if (empty($data['x']) || empty($data['y'])) {
+            $this->point = $this->game->map->getSpawnPoint();
+        } else {
+            $this->point = new Point($data['x'], $data['y']);
+        }
+
         $this->ownerType      = 'player';
         $this->wizardId       = $wizardData['id'];
         $this->battleWizardId = $wizardData['battleWizardId'];
         $this->level          = $wizardData['level'];
         $this->class          = $wizardData['class'];
+        $this->userId         = $wizardData['userId'];
+
+
+        if (isset($data['logic'])) {
+            $logicClassName = ucfirst($data['logic']) . 'Logic';
+        } else {
+            $logicClassName = ucfirst($this->class) . 'Logic';
+        }
+        $logicClassName = 'Game\Units\Logic\\' . $logicClassName;
+        $this->logic = new $logicClassName();
     }
-} 
+}

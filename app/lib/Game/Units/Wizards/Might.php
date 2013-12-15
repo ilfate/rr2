@@ -7,7 +7,12 @@
 
 namespace Game\Units\Wizards;
 
-abstract class Might extends Wizard
+use Game\Game;
+use Game\Map\MapObject;
+use Game\Units\Actions\Action;
+use Game\Units\Unit;
+
+class Might extends Wizard
 {
 
-} 
+}

@@ -48,10 +48,10 @@ class GameExecuter {
             $this->reRun();
             return;
         }
-        $battleMapsCount = count($battleMapsWithWizards);
-        for ($i = 0; $i < $battleMapsCount; $i++)
+
+        foreach ($battleMapsWithWizards as $battleMapData)
         {
-            $game = new Game($battleMapsWithWizards[$i], $this);
+            $game = new Game($battleMapData, $this);
             $game->run();
         }
 

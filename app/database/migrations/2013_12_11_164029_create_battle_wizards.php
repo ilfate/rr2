@@ -16,7 +16,6 @@ class CreateBattleWizards extends Migration {
 			$table->increments('id');
 			$table->integer('battle_map_id')->unsigned()->index();
 			$table->integer('wizard_id')->unsigned();
-			$table->integer('user_id')->unsigned();
 			$table->integer('chunk_id')->unsigned();
             $table->text('data');
             $table->timestamps();

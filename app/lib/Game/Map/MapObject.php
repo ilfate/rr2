@@ -8,6 +8,7 @@
 namespace Game\Map;
 
 use Game\Geometry\Geometry;
+use Game\Geometry\Point;
 use Game\Units\Unit;
 
 /**
@@ -73,6 +74,11 @@ class MapObject
             $this->chunks[$chunk['x']][$chunk['y']] = $chunk;
             $this->explodeChunk($chunk, true);
         }
+    }
+
+    public function getSpawnPoint()
+    {
+        return new Point(1, 1);
     }
 
     /**

@@ -13,6 +13,7 @@ abstract class Event {
 
     const BEFORE_ACTION = 'ba';
     const AFTER_ACTION  = 'aa';
+    const ON_TICK       = 'ot';
 
     public $code;
     public $type;

@@ -35,9 +35,11 @@ class BattleMap extends Eloquent
                 'battle_wizards.data as battle_wizard_data',
                 'wizards.level as level',
                 'wizards.class as class',
+                'wizards.user_id as user_id',
                 'maps.width as width',
                 'maps.height as height',
-                'maps.chunk_size as chunk_size'
+                'maps.chunk_size as chunk_size',
+                'maps.bioms as bioms'
             )
             ->get()
             ->toArray();
@@ -48,12 +50,13 @@ class BattleMap extends Eloquent
         foreach ($data as $row) {
             if (!isset($maps[$row['battle_map_id']])) {
                 $maps[$row['battle_map_id']] = array(
-                    'id'         => $row['battle_map_id'],
-                    'width'      => $row['width'],
-                    'height'     => $row['height'],
-                    'chunk_size' => $row['chunk_size'],
-                    'time'       => $row['time'],
-                    'wizards'    => array()
+                    'battle_map_id' => $row['battle_map_id'],
+                    'width'         => $row['width'],
+                    'height'        => $row['height'],
+                    'chunk_size'    => $row['chunk_size'],
+                    'bioms'         => $row['bioms'],
+                    'time'          => $row['time'],
+                    'wizards'       => array()
                 );
             }
             $maps[$row['battle_map_id']]['wizards'][] = array(
@@ -62,6 +65,7 @@ class BattleMap extends Eloquent
                 'data'           => $row['battle_wizard_data'],
                 'level'          => $row['level'],
                 'class'          => $row['class'],
+                'userId'         => $row['user_id'],
             );
         }
         return $maps;

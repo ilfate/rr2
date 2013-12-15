@@ -11,6 +11,8 @@ namespace Game\Units;
 use Game\Game;
 use Game\Geometry\Point;
 use Game\Map\MapObject;
+use Game\Units\Actions\Action;
+use Game\Units\Logic\Logic;
 
 abstract class Unit {
 
@@ -29,6 +31,9 @@ abstract class Unit {
     /** @var Action */
     public $action;
 
+    /** @var bool shows can this unit do actions or not */
+    public $canDoActions = true;
+
     /** @var array */
     public $actionsHistory;
 
@@ -38,19 +43,30 @@ abstract class Unit {
     /** @var integer Id in current game object */
     public $objectId;
 
+    /** @var Logic */
+    public $logic;
+
+    /** @var Game */
+    public $game;
+
+    public function __construct($game, $data = array())
+    {
+        $this->game = $game;
+    }
+
 
     /**
-     * @param MapObject  $map
-     * @param \Game\Game $game
-     *
      * @return Action|mixed
      */
-    public function action(MapObject $map, Game $game)
+    public function action()
     {
+        $this->triggerEvent(Event::ON_TICK);
+        if (!$this->canDoActions) {
+            return false;
+        }
         if ($this->action) {
-            $this->action->timeSpended += Game::TIME_STEP;
             $this->action->onProgress();
-            if ($this->action->timeSpended >= $this->action->duration || $this->action->stop) {
+            if ($this->game->getTime() - $this->action->startTime >= $this->action->duration || $this->action->stop) {
                 // this action is just ended
                 $this->action->onEnd();
                 $this->triggerEvent(Event::AFTER_ACTION);
@@ -63,7 +79,7 @@ abstract class Unit {
         if (!$this->action) {
             // now we do not have action in progress.
             // here we need to make decision about next action
-            $this->action = $this->makeDecision($this, $map, $game);
+            $this->action = $this->makeDecision($this, $this->game);
             $this->triggerEvent(Event::BEFORE_ACTION);
             $this->action->onStart();
         }
@@ -93,10 +109,13 @@ abstract class Unit {
 
     /**
      * @param Unit       $unit
-     * @param MapObject  $map
      * @param \Game\Game $game
      *
      * @return Action
      */
-    abstract protected function makeDecision(Unit $unit, MapObject $map, Game $game);
+    protected function makeDecision(Unit $unit , Game $game)
+    {
+        $logicName = $this->logic;
+        return $logicName::decision($unit, $game);
+    }
 } 

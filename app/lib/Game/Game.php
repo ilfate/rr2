@@ -14,7 +14,7 @@
 namespace Game;
 
 use Game\Map\MapObject;
-use Game\Units\Wizards\Wizard;
+use Game\Units\Wizards\Might as Might;
 use Game\Units\Monsters;
 use Game\Units\Unit;
 
@@ -28,18 +28,24 @@ class Game
     /** time for step in milli seconds */
     const TIME_STEP = 200;
 
+    /** How long is game running without stopping */
+    const RUN_TIME_LIMIT = 5000;
+
     /** @var GameExecuter */
     protected $gameExecuter;
 
     /** @var MapObject */
-    protected $map;
+    public $map;
 
     /** @var integer current game time */
     protected $time;
 
     /** @var Unit[] */
-    protected $objects;
-    protected $countObjects;
+    protected $units;
+    protected $countUnits;
+
+    /** @var array here we will store all logs for displaying */
+    protected $log = array();
 
     /**
      * @param $data
@@ -49,14 +55,7 @@ class Game
     {
         $this->time = $data['time'];
         $this->gameExecuter = $gameExecuter;
-        foreach ($data['wizards'] as $wizard) {
-            $wizardClass = ucfirst($wizard['class']);
-            $this->objects[] = new $wizardClass($wizard);
-            $wizardId = count($this->objects) - 1;
-            $this->objects[$wizardId]->objectId = $wizardId;
-        }
-        unset($data['wizards']);
-        $this->countObjects = count($this->objects);
+
         $this->map = new MapObject($data);
 
         // here we decide should we load all chunks for map or we will load only necessary ones
@@ -65,6 +64,16 @@ class Game
         ) {
             $this->map->setChunks($this->gameExecuter->loadAllChunks($this->map->battleMapId));
         }
+
+        foreach ($data['wizards'] as $wizard) {
+            $wizardClass = 'Game\Units\Wizards\\' . ucfirst($wizard['class']);
+            $this->units[] = new $wizardClass($this, $wizard);
+            $wizardId = count($this->units) - 1;
+            $this->units[$wizardId]->objectId = $wizardId;
+            $this->log[$wizard['userId']] = array();
+        }
+        $this->countUnits = count($this->units);
+
     }
 
     /**
@@ -72,11 +81,17 @@ class Game
      */
     public function run()
     {
-        for($i = 0; $i < $this->countObjects; $i++) {
-            $this->objects[$i]->action($this->map, $this);
+        for($i = 0; $i < $this->countUnits; $i++) {
+            $this->units[$i]->action($this);
         }
 
         $this->time += self::TIME_STEP;
+
+        if ($this->getTime() >= self::RUN_TIME_LIMIT) {
+            $this->stop();
+        } else {
+            $this->run();
+        }
     }
 
     /**
@@ -86,7 +101,7 @@ class Game
      */
     public function getUnit($id)
     {
-        return $this->objects[$id];
+        return $this->units[$id];
     }
 
     /**
@@ -95,5 +110,25 @@ class Game
     public function getTime()
     {
         return $this->time;
+    }
+
+    /**
+     * @param array $watchers
+     * @param       $performer
+     * @param       $code
+     * @param array $data
+     */
+    public function addLog(array $watchers, $performer, $code, $data = array())
+    {
+        foreach ($watchers as $watcherId)
+        {
+            // who | what | when | with what
+            $this->log[$watcherId][] = array($performer, $code, $this->getTime(), $data);
+        }
+    }
+
+    public function stop()
+    {
+        echo 'hello world!';
     }
 }
