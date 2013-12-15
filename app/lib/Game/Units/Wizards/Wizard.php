@@ -18,15 +18,17 @@ abstract class Wizard extends Unit
     public $playerId;
     public $class;
     public $userId;
+    public $type = 'wizard';
 
     public function __construct($game, $wizardData)
     {
         $this->game = $game;
         $data = $wizardData['data'];
         if (empty($data['x']) || empty($data['y'])) {
-            $this->point = $this->game->map->getSpawnPoint();
+            list($this->x, $this->y) = $this->game->map->getSpawnPoint();
         } else {
-            $this->point = new Point($data['x'], $data['y']);
+            $this->x = $data['x'];
+            $this->y = $data['y'];
         }
 
         $this->ownerType      = 'player';

@@ -8,27 +8,14 @@
 
 namespace Game\Units\Actions;
 
-
 class MoveForward extends Action{
     public $code = 'mf';
-    public $duration = 800;
+    public $duration = 1000;
 
-    public function onEnd()
+    public function onStart()
     {
-        switch($this->unit->d)
-        {
-            case 0:
-                $this->unit->point->y--;
-                break;
-            case 1:
-                $this->unit->point->x++;
-                break;
-            case 2:
-                $this->unit->point->y++;
-                break;
-            case 3:
-                $this->unit->point->x--;
-                break;
-        }
+        $oldPoint = [$this->unit->x, $this->unit->y];
+        list($this->unit->x, $this->unit->y) = $this->game->map->getNextCoords($this->unit->x, $this->unit->y, $this->unit->d);
+        $this->game->map->moveUnit($oldPoint[0], $oldPoint[1], $this->unit);
     }
 } 

@@ -23,6 +23,8 @@ class GameExecuter {
     protected $battleMapModel;
     /** @var \Chunk */
     protected $chunkModel;
+    /** @var \Monster */
+    protected $monsterModel;
 
     public $startTime;
 
@@ -37,6 +39,7 @@ class GameExecuter {
         $this->wizardModel       = new \Wizard();
         $this->battleMapModel    = new \BattleMap();
         $this->chunkModel        = new \Chunk();
+        $this->monsterModel      = new \Monster();
     }
 
     public function run()
@@ -71,5 +74,10 @@ class GameExecuter {
     public function loadAllChunks($battleMapId)
     {
         return $this->chunkModel->where('battle_map_id', '=', $battleMapId)->get();
+    }
+
+    public function loadMonsters($battleMapId)
+    {
+        return $this->monsterModel->where('battle_map_id', '=', $battleMapId)->get()->toArray();
     }
 }

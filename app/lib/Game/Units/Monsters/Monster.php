@@ -11,10 +11,10 @@ use Game\Units\Unit;
 
 abstract class Monster extends Unit
 {
+    public $type = 'monster';
 
-
-    public function __construct()
+    public function __construct($data)
     {
-
+        $this->level = $data['level'];
     }
 } 

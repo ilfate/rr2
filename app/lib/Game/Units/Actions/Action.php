@@ -31,8 +31,13 @@ abstract class Action
         $this->startTime = $game->getTime();
         $this->unit      = $unit;
         $this->game      = $game;
+    }
 
-        $this->game->addLog($this->watchers, $this->unit->objectId, $this->code, $this->data);
+    public function log()
+    {
+        $this->watchers =  $this->game->map->getWatchman($this->unit->x, $this->unit->y);
+
+        $this->game->addLog($this->watchers, $this->unit->unitId, $this->code, $this->data);
     }
 
     public function onEnd()

@@ -6,6 +6,8 @@
  */
 namespace Game\Geometry;
 
+use Game\Map\MapObject;
+
 class Geometry
 {
     const CHUNK_SIZE = 4;
@@ -140,5 +142,20 @@ class Geometry
             $y = $y % $cellsY;
         }
         return [$x, $y];
+    }
+
+    public static function calculateWatchmanChange($oldValue, $newValue)
+    {
+        $delta = $newValue - $oldValue;
+        $sign = ($delta) / abs($delta);
+        $start = $oldValue - (MapObject::WATCH_RADIUS * $sign);
+        if ($sign < 0) {
+            $start += $delta + 1;
+        }
+        $end = $start + abs($delta) - 1;
+        $creatingAdd = (MapObject::WATCH_RADIUS * 2 + 1) * $sign;
+        $creatingStart = $start + $creatingAdd;
+        $creatingEnd   = $end + $creatingAdd;
+        return [$start, $end, $creatingStart, $creatingEnd];
     }
 }

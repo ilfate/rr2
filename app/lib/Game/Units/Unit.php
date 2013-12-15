@@ -9,21 +9,25 @@
 namespace Game\Units;
 
 use Game\Game;
-use Game\Geometry\Point;
 use Game\Map\MapObject;
 use Game\Units\Actions\Action;
 use Game\Units\Logic\Logic;
 
 abstract class Unit {
 
-    /** @var Point */
-    public $point;
+    /** @var int */
+    public $x;
+    /** @var int */
+    public $y;
 
     /** @var integer 0 is up. Clockwise */
     public $d;
 
     /** @var string can be 'player' or 'neutral' */
     public $ownerType = 'neutral';
+
+    /** @var string wizard or monster */
+    public $type;
 
     /** @var integer */
     public $level;
@@ -41,7 +45,7 @@ abstract class Unit {
     public $events;
 
     /** @var integer Id in current game object */
-    public $objectId;
+    public $unitId;
 
     /** @var Logic */
     public $logic;
@@ -53,7 +57,6 @@ abstract class Unit {
     {
         $this->game = $game;
     }
-
 
     /**
      * @return Action|mixed
@@ -80,6 +83,7 @@ abstract class Unit {
             // now we do not have action in progress.
             // here we need to make decision about next action
             $this->action = $this->makeDecision($this, $this->game);
+            $this->action->log();
             $this->triggerEvent(Event::BEFORE_ACTION);
             $this->action->onStart();
         }

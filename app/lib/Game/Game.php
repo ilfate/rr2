@@ -69,11 +69,21 @@ class Game
             $wizardClass = 'Game\Units\Wizards\\' . ucfirst($wizard['class']);
             $this->units[] = new $wizardClass($this, $wizard);
             $wizardId = count($this->units) - 1;
-            $this->units[$wizardId]->objectId = $wizardId;
+            $this->units[$wizardId]->unitId = $wizardId;
+            // create log spot for user
             $this->log[$wizard['userId']] = array();
         }
+        $monsters = $this->gameExecuter->loadMonsters($this->map->battleMapId);
+        if ($monsters) {
+            foreach ($monsters as $monsterData) {
+                $monsterClass = 'Game\Units\Monsters\\' . ucfirst($monsterData['type']);
+                $this->units[] = new $monsterClass($monsterData);
+                $monsterId = count($this->units) - 1;
+                $this->units[$monsterId]->unitId = $monsterId;
+            }
+        }
         $this->countUnits = count($this->units);
-
+        $this->map->putUnitsOnTheMap($this->units);
     }
 
     /**
