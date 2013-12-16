@@ -14,7 +14,6 @@
 namespace Game;
 
 use Game\Map\MapObject;
-use Game\Units\Wizards\Might as Might;
 use Game\Units\Monsters;
 use Game\Units\Unit;
 
@@ -40,12 +39,17 @@ class Game
     /** @var integer current game time */
     protected $time;
 
+    protected $runTime = 0;
+
     /** @var Unit[] */
     protected $units;
     protected $countUnits;
 
     /** @var array here we will store all logs for displaying */
     protected $log = array();
+
+    /** @var bool if false then we stop executing */
+    private $running = true;
 
     /**
      * @param $data
@@ -91,16 +95,17 @@ class Game
      */
     public function run()
     {
-        for($i = 0; $i < $this->countUnits; $i++) {
-            $this->units[$i]->action($this);
-        }
+        while ($this->running) {
+            for($i = 0; $i < $this->countUnits; $i++) {
+                $this->units[$i]->action($this);
+            }
 
-        $this->time += self::TIME_STEP;
+            $this->time    += self::TIME_STEP;
+            $this->runTime += self::TIME_STEP;
 
-        if ($this->getTime() >= self::RUN_TIME_LIMIT) {
-            $this->stop();
-        } else {
-            $this->run();
+            if ($this->runTime >= self::RUN_TIME_LIMIT) {
+                $this->stop();
+            }
         }
     }
 
@@ -141,14 +146,27 @@ class Game
     {
         foreach ($this->units as $unit) {
             if ($unit->isWizard()) {
-
+                $this->gameExecuter->saveWizard($unit->prepareToSave());
+            } else {
+                $monsterData = $unit->prepareToSave();
+                if ($unit->isSaved) {
+                    $this->gameExecuter->saveMonster($monsterData);
+                } else {
+                    $this->gameExecuter->newMonster($monsterData);
+                }
             }
         }
+        $this->gameExecuter->saveMap(array(
+            'id'   => $this->map->battleMapId,
+            'time' => $this->getTime()
+        ));
     }
 
 
     public function stop()
     {
+        $this->running = false;
+        $this->saveUnits();
         echo 'hello world!';
     }
 }

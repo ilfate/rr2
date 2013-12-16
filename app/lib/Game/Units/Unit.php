@@ -125,7 +125,7 @@ abstract class Unit {
      */
     protected function makeDecision(Unit $unit , Game $game)
     {
-        $logicName = $this->logic;
+        $logicName = 'Game\Units\Logic\\' . $this->logic . 'Logic';
         return $logicName::decision($unit, $game);
     }
 
@@ -136,4 +136,6 @@ abstract class Unit {
     {
         return $this->type == 'wizard';
     }
+
+    abstract public function prepareToSave();
 } 

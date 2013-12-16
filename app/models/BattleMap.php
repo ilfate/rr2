@@ -62,10 +62,14 @@ class BattleMap extends Eloquent
             $maps[$row['battle_map_id']]['wizards'][] = array(
                 'id'             => $row['wizard_id'],
                 'battleWizardId' => $row['battle_wizard_id'],
-                'data'           => $row['battle_wizard_data'],
+                'data'           => $row['battle_wizard_data'] ? json_decode($row['battle_wizard_data'], true) : [],
                 'level'          => $row['level'],
                 'class'          => $row['class'],
                 'userId'         => $row['user_id'],
+                'sta'            => 6,
+                'wis'            => 5,
+                'int'            => 5,
+                'spi'            => 5,
             );
         }
         return $maps;

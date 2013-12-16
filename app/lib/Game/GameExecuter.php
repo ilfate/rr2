@@ -80,4 +80,24 @@ class GameExecuter {
     {
         return $this->monsterModel->where('battle_map_id', '=', $battleMapId)->get()->toArray();
     }
+
+    public function saveWizard($wizard)
+    {
+        $this->battleWizardModel->where('id', '=', $wizard['id'])->update($wizard);
+    }
+
+    public function saveMap($map)
+    {
+        $this->battleMapModel->where('id', '=', $map['id'])->update($map);
+    }
+
+    public function saveMonster($monster)
+    {
+        $this->monsterModel->where('id', '=', $monster['id'])->where('battle_map_id', '=', $monster['battle_map_id'])->update($monster);
+    }
+
+    public function newMonster($monster)
+    {
+        $this->monsterModel->insert($monster);
+    }
 }
