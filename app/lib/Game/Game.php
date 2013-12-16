@@ -137,6 +137,16 @@ class Game
         }
     }
 
+    protected function saveUnits()
+    {
+        foreach ($this->units as $unit) {
+            if ($unit->isWizard()) {
+
+            }
+        }
+    }
+
+
     public function stop()
     {
         echo 'hello world!';

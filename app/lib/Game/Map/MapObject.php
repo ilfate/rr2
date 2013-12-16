@@ -82,7 +82,7 @@ class MapObject
 
     public function getSpawnPoint()
     {
-        return [1, 1];
+        return [1, 1, 0];
     }
 
     /**
@@ -169,6 +169,13 @@ class MapObject
         $this->addUnitToTheMap($unit, isset($createData) ? $createData : null);
     }
 
+    /**
+     * Get units from one cell
+     * @param $x
+     * @param $y
+     *
+     * @return array
+     */
     public function getUnits($x, $y)
     {
         if (isset($this->units[$x][$y])) {
@@ -177,6 +184,7 @@ class MapObject
         return array();
     }
 
+    /** get users that are watching this cell */
     public function getWatchman($x, $y)
     {
         if (isset($this->watchman[$x][$y])) {

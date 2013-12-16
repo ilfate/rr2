@@ -23,6 +23,12 @@ abstract class Unit {
     /** @var integer 0 is up. Clockwise */
     public $d;
 
+    /** @var int remaining health */
+    public $health;
+
+    /** @var bool shows can this unit die of health loss or not */
+    public $canDie = true;
+
     /** @var string can be 'player' or 'neutral' */
     public $ownerType = 'neutral';
 
@@ -121,5 +127,13 @@ abstract class Unit {
     {
         $logicName = $this->logic;
         return $logicName::decision($unit, $game);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isWizard()
+    {
+        return $this->type == 'wizard';
     }
 } 
