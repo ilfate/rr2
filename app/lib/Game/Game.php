@@ -169,4 +169,9 @@ class Game
         $this->saveUnits();
         echo 'hello world!';
     }
+
+    public function spawnMonster()
+    {
+
+    }
 }
