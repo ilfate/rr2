@@ -36,7 +36,6 @@ abstract class Wizard extends Unit
             list($this->x, $this->y, $this->d) = $this->game->map->getSpawnPoint();
             $config       = \Config::get('wizards.wizards.' . $wizardData['class']);
             $this->health = $config['defaultHealth'] + ($wizardData['sta'] * $config['statsEffect']['sta']);
-            $logic        = ucfirst($this->class);
         } else {
             $this->x      = $data['x'];
             $this->y      = $data['y'];
@@ -48,11 +47,10 @@ abstract class Wizard extends Unit
             $actionClass             = 'Game\Units\Actions\\' . $actionConf['className'];
             $this->action            = new $actionClass($this, $game);
             $this->action->startTime = $data['a'][1];
-            $logic                   = $data['l'];
+            $this->logicCode         = $data['l'];
         }
 
-        $logicClassName = $logic;
-        $this->logic    = $logicClassName;
+        $this->logic = \Config::get('wizards.logic.' . $this->logicCode);
     }
 
     public function prepareToSave()
@@ -66,7 +64,7 @@ abstract class Wizard extends Unit
             'd' => $this->d,
             'a' => [$this->action->code, $this->action->startTime],
             'h' => $this->health,
-            'l' => $this->logic
+            'l' => $this->logicCode
         );
         $return['data'] = json_encode($data);
         return $return;

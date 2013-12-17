@@ -60,7 +60,7 @@ class Game
         $this->time = $data['time'];
         $this->gameExecuter = $gameExecuter;
 
-        $this->map = new MapObject($data);
+        $this->map = new MapObject($data, null, $this);
 
         // here we decide should we load all chunks for map or we will load only necessary ones
         if ($this->map->mapWidth * $this->map->mapHeight * $this->map->chunkSize
@@ -170,8 +170,34 @@ class Game
         echo 'hello world!';
     }
 
-    public function spawnMonster()
+    public function spawnMonster($x, $y)
     {
+        $type = 'wolf';
+        $monsterClass = 'Game\Units\Monsters\\' . ucfirst($type);
+        $data = [
+            'type' => $type,
+            'x'    => $x,
+            'y'    => $y,
+        ];
+        /** @var Monsters\Monster $monster */
+        $monster = new $monsterClass($this, $data);
+        $monsterId = count($this->units);
+        $monster->unitId = $monsterId;
+        $this->units[] = $monster;
+        $this->countUnits++;
+        $this->map->addUnitToTheMap($monster);
+    }
 
+    /**
+     * This method is triggered by Map when new cell is comes to user
+     * @param $x
+     * @param $y
+     */
+    public function newCellIsVisible($x, $y)
+    {
+        // here we should set logic to decide spawn monster or not.
+        if (mt_rand(1, 10) == 1) {
+            $this->spawnMonster($x, $y);
+        }
     }
 }

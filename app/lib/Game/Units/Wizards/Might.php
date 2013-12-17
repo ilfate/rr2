@@ -14,5 +14,5 @@ use Game\Units\Unit;
 
 class Might extends Wizard
 {
-
+    public $logicCode = 'wm';
 }

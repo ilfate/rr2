@@ -7,6 +7,7 @@
 
 namespace Game\Map;
 
+use Game\Game;
 use Game\Geometry\Geometry;
 use Game\Units\Unit;
 use Game\Units\Wizards\Wizard;
@@ -38,6 +39,9 @@ class MapObject
 
     public $allowToLoadFromDb = true;
 
+    /** @var Game */
+    protected $game;
+
     /**
      * @var array An array of all objects that are exist on the map. Indexed by cells
      */
@@ -47,9 +51,13 @@ class MapObject
     /**
      * @param array $mapData
      * @param null  $chunkModel
+     * @param Game  $game
      */
-    public function __construct($mapData, $chunkModel = null)
+    public function __construct($mapData, $chunkModel = null, $game = null)
     {
+        if ($game) {
+            $this->game = $game;
+        }
         $this->mapData     = $mapData;
         $this->mapWidth    = $mapData['width'];
         $this->mapHeight   = $mapData['height'];
@@ -121,8 +129,13 @@ class MapObject
                     $point = Geometry::prepareCellCoordinats($point[0], $point[1], $this->mapWidth, $this->mapHeight, $this->chunkSize);
                     if (!isset($this->watchman[$point[0]][$point[1]])) {
                         $this->watchman[$point[0]][$point[1]] = array();
+                        if ($createWatchData) {
+                            // here we sure that user is see new cell. Maybe we should spawn something here?
+                            $this->game->newCellIsVisible($point[0], $point[1]);
+                        }
                     }
                     $this->watchman[$point[0]][$point[1]][$unit->userId] = $unit->userId;
+
                 }
             }
         }

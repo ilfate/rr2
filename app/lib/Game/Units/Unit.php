@@ -55,14 +55,10 @@ abstract class Unit {
 
     /** @var Logic */
     public $logic;
+    public $logicCode;
 
     /** @var Game */
     public $game;
-
-    public function __construct($game, $data = array())
-    {
-        $this->game = $game;
-    }
 
     /**
      * @return Action|mixed
@@ -121,10 +117,14 @@ abstract class Unit {
      * @param Unit       $unit
      * @param \Game\Game $game
      *
+     * @throws \Exception
      * @return Action
      */
     protected function makeDecision(Unit $unit , Game $game)
     {
+        if (!$this->logic) {
+            throw new \Exception('unit ' . $this->unitId . ' is missing Logic');
+        }
         $logicName = 'Game\Units\Logic\\' . $this->logic . 'Logic';
         return $logicName::decision($unit, $game);
     }

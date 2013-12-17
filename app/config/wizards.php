@@ -66,5 +66,10 @@ return array(
         'mf' => [
             'className' => 'MoveForward'
         ]
+    ],
+    'logic' => [
+        'wm' => 'Might',
+        '_m' => 'Monster',
+        'pm' => 'PassiveMonster',
     ]
 );

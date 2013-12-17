@@ -7,6 +7,7 @@
 
 namespace Game\Units\Monsters;
 
+use Game\Game;
 use Game\Units\Unit;
 
 abstract class Monster extends Unit
@@ -14,20 +15,43 @@ abstract class Monster extends Unit
     public $type = 'monster';
     public $monsterType;
     public $isSaved = false;
+    public $stats = array();
 
-    public function __construct($data = array())
+    public function __construct(Game $game, $data = array())
     {
-        if ($data) {
+        $this->game = $game;
+        if (isset($data['health'])) {
             $this->isSaved = true;
             $this->level = $data['level'];
             $this->monsterType = $data['type'];
+            $this->health = $data['health'];
+            $this->x = $data['data']['x'];
+            $this->y = $data['data']['y'];
+            $this->d = $data['data']['d'];
+            $this->logicCode = $data['data']['l'];
+        } else {
+            // let`s create new monster
+            $this->monsterType = $data['type'];
+            $this->x = $data['x'];
+            $this->y = $data['y'];
+            $this->d = mt_rand(0, 3);
+            $monsterConfig = \Config::get('monsters.monsters.' . $this->monsterType);
+            $this->stats = $monsterConfig['stats'];
+            $this->health = $this->stats['sta'] * 5;
+            $this->logicCode = '_m';
         }
+        $this->logic = \Config::get('wizards.logic.' . $this->logicCode);
 
     }
 
     public function prepareToSave()
     {
-        $data = [];
+        $data = [
+            'x' => $this->x,
+            'y' => $this->y,
+            'd' => $this->d,
+            'l' => $this->logicCode,
+        ];
         return array(
             'id' => $this->unitId,
             'battle_map_id' => $this->game->map->battleMapId,

@@ -9,6 +9,7 @@
 namespace Game\Units\Monsters;
 
 
-class Wolf extends Monster{
-
+class Wolf extends Monster
+{
+    public $level = 1;
 } 
