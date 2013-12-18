@@ -138,4 +138,13 @@ abstract class Unit {
     }
 
     abstract public function prepareToSave();
+
+    protected function loadAction($code, $startTime)
+    {
+        // set Action that is active right now
+        $actionConf              = \Config::get('wizards.actions.' . $code);
+        $actionClass             = 'Game\Units\Actions\\' . $actionConf['className'];
+        $this->action            = new $actionClass($this, $this->game);
+        $this->action->startTime = $startTime;
+    }
 } 

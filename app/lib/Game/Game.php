@@ -71,23 +71,21 @@ class Game
 
         foreach ($data['wizards'] as $wizard) {
             $wizardClass = 'Game\Units\Wizards\\' . ucfirst($wizard['class']);
-            $this->units[] = new $wizardClass($this, $wizard);
-            $wizardId = count($this->units) - 1;
-            $this->units[$wizardId]->unitId = $wizardId;
+            $this->addUnit(new $wizardClass($this, $wizard), false);
             // create log spot for user
             $this->log[$wizard['userId']] = array();
         }
         $monsters = $this->gameExecuter->loadMonsters($this->map->battleMapId);
         if ($monsters) {
             foreach ($monsters as $monsterData) {
+                $monsterData['data'] = json_decode($monsterData['data'], true);
                 $monsterClass = 'Game\Units\Monsters\\' . ucfirst($monsterData['type']);
-                $this->units[] = new $monsterClass($monsterData);
-                $monsterId = count($this->units) - 1;
-                $this->units[$monsterId]->unitId = $monsterId;
+                $this->addUnit(new $monsterClass($monsterData), false);
             }
         }
         $this->countUnits = count($this->units);
         $this->map->putUnitsOnTheMap($this->units);
+        $this->displayUnitsOnMap($this->units);
     }
 
     /**
@@ -106,6 +104,28 @@ class Game
             if ($this->runTime >= self::RUN_TIME_LIMIT) {
                 $this->stop();
             }
+        }
+    }
+
+    protected function addUnit(Unit $unit, $justCreatedUnit = true)
+    {
+        $unitId = count($this->units);
+        $unit->unitId = $unitId;
+        $this->units[] = $unit;
+        $this->countUnits++;
+        if ($justCreatedUnit) {
+            $this->map->addUnitToTheMap($unit);
+            $this->displayUnitsOnMap([$unit]);
+        }
+    }
+
+    /**
+     * @param Unit[] $units
+     */
+    protected function displayUnitsOnMap($units)
+    {
+        foreach ($units as $unit) {
+            $this->addLog($this->map->getWatchman($unit->x, $unit->y), $unit->unitId, 'new');
         }
     }
 
@@ -180,12 +200,7 @@ class Game
             'y'    => $y,
         ];
         /** @var Monsters\Monster $monster */
-        $monster = new $monsterClass($this, $data);
-        $monsterId = count($this->units);
-        $monster->unitId = $monsterId;
-        $this->units[] = $monster;
-        $this->countUnits++;
-        $this->map->addUnitToTheMap($monster);
+        $this->addUnit(new $monsterClass($this, $data));
     }
 
     /**

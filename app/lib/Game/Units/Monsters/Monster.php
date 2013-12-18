@@ -1,8 +1,9 @@
 <?php
 /**
  * ILFATE PHP ENGINE
+ *
  * @autor Ilya Rubinchik ilfate@gmail.com
- * 2013
+ *        2013
  */
 
 namespace Game\Units\Monsters;
@@ -16,29 +17,30 @@ abstract class Monster extends Unit
     public $monsterType;
     public $isSaved = false;
     public $stats = array();
+    public $logicCode = '_m';
 
     public function __construct(Game $game, $data = array())
     {
         $this->game = $game;
         if (isset($data['health'])) {
-            $this->isSaved = true;
-            $this->level = $data['level'];
+            $this->isSaved     = true;
+            $this->level       = $data['level'];
             $this->monsterType = $data['type'];
-            $this->health = $data['health'];
-            $this->x = $data['data']['x'];
-            $this->y = $data['data']['y'];
-            $this->d = $data['data']['d'];
-            $this->logicCode = $data['data']['l'];
+            $this->health      = $data['health'];
+            $this->x           = $data['data']['x'];
+            $this->y           = $data['data']['y'];
+            $this->d           = $data['data']['d'];
+            $this->logicCode   = $data['data']['l'];
+            $this->loadAction($data['a'][0], $data['a'][1]);
         } else {
             // let`s create new monster
             $this->monsterType = $data['type'];
-            $this->x = $data['x'];
-            $this->y = $data['y'];
-            $this->d = mt_rand(0, 3);
-            $monsterConfig = \Config::get('monsters.monsters.' . $this->monsterType);
-            $this->stats = $monsterConfig['stats'];
-            $this->health = $this->stats['sta'] * 5;
-            $this->logicCode = '_m';
+            $this->x           = $data['x'];
+            $this->y           = $data['y'];
+            $this->d           = mt_rand(0, 3);
+            $monsterConfig     = \Config::get('monsters.monsters.' . $this->monsterType);
+            $this->stats       = $monsterConfig['stats'];
+            $this->health      = $this->stats['sta'] * 5;
         }
         $this->logic = \Config::get('wizards.logic.' . $this->logicCode);
 
@@ -51,14 +53,15 @@ abstract class Monster extends Unit
             'y' => $this->y,
             'd' => $this->d,
             'l' => $this->logicCode,
+            'a' => [$this->action->code, $this->action->startTime],
         ];
         return array(
-            'id' => $this->unitId,
+            'id'            => $this->unitId,
             'battle_map_id' => $this->game->map->battleMapId,
-            'health' => $this->health,
-            'level' => $this->level,
-            'type' => $this->monsterType,
-            'data' => json_encode($data)
+            'health'        => $this->health,
+            'level'         => $this->level,
+            'type'          => $this->monsterType,
+            'data'          => json_encode($data)
         );
     }
 } 

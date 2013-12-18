@@ -41,13 +41,8 @@ abstract class Wizard extends Unit
             $this->y      = $data['y'];
             $this->d      = $data['d'];
             $this->health = $data['h'];
-
-            // set Action that is active right now
-            $actionConf              = \Config::get('wizards.actions.' . $data['a'][0]);
-            $actionClass             = 'Game\Units\Actions\\' . $actionConf['className'];
-            $this->action            = new $actionClass($this, $game);
-            $this->action->startTime = $data['a'][1];
             $this->logicCode         = $data['l'];
+            $this->loadAction($data['a'][0], $data['a'][1]);
         }
 
         $this->logic = \Config::get('wizards.logic.' . $this->logicCode);
