@@ -25,6 +25,7 @@ abstract class Unit {
 
     /** @var int remaining health */
     public $health;
+    public $maxHealth;
 
     /** @var bool shows can this unit die of health loss or not */
     public $canDie = true;

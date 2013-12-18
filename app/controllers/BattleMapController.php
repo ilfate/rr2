@@ -94,7 +94,7 @@ class BattleMapController extends BaseController {
 	{
         $mapData = $this->battleMapModel->getBattleMapData($battleMapId);
 
-        $mapObject = new MapObject($mapData->toArray()[0]);
+        $mapObject = new MapObject($mapData);
         $mapObject->allowToLoadFromDb = false;
 
         $generator = new Game\Map\Generator($mapObject);

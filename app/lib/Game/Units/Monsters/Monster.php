@@ -31,7 +31,7 @@ abstract class Monster extends Unit
             $this->y           = $data['data']['y'];
             $this->d           = $data['data']['d'];
             $this->logicCode   = $data['data']['l'];
-            $this->loadAction($data['a'][0], $data['a'][1]);
+            $this->loadAction($data['data']['a'][0], $data['data']['a'][1]);
         } else {
             // let`s create new monster
             $this->monsterType = $data['type'];

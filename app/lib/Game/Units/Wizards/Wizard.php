@@ -13,12 +13,19 @@ use Game\Units\Logic;
 
 abstract class Wizard extends Unit
 {
+    const STATS_STA_EFFECT = 5;
+    const STATS_INT_EFFECT = 5;
+    const STATS_WIZ_EFFECT = 5;
+    const STATS_SPI_EFFECT = 5;
+
     public $wizardId;
     public $battleWizardId;
     public $playerId;
     public $class;
     public $userId;
     public $type = 'wizard';
+
+    public $vision = array();
 
     public function __construct($game, $wizardData)
     {
@@ -34,8 +41,7 @@ abstract class Wizard extends Unit
             // it means we do not have any saved data at all
             // we will populate default data
             list($this->x, $this->y, $this->d) = $this->game->map->getSpawnPoint();
-            $config       = \Config::get('wizards.wizards.' . $wizardData['class']);
-            $this->health = $config['defaultHealth'] + ($wizardData['sta'] * $config['statsEffect']['sta']);
+            $this->maxHealth = $this->health = $wizardData['sta'] * static::STATS_STA_EFFECT;
         } else {
             $this->x      = $data['x'];
             $this->y      = $data['y'];
@@ -43,6 +49,7 @@ abstract class Wizard extends Unit
             $this->health = $data['h'];
             $this->logicCode         = $data['l'];
             $this->loadAction($data['a'][0], $data['a'][1]);
+            $this->maxHealth = $wizardData['sta'] * static::STATS_STA_EFFECT;
         }
 
         $this->logic = \Config::get('wizards.logic.' . $this->logicCode);
@@ -63,5 +70,10 @@ abstract class Wizard extends Unit
         );
         $return['data'] = json_encode($data);
         return $return;
+    }
+
+    public function exportVisibleMap()
+    {
+
     }
 }

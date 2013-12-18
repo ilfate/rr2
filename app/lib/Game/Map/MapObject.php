@@ -112,14 +112,14 @@ class MapObject
             $this->units[$unit->x][$unit->y] = array();
         }
         $this->units[$unit->x][$unit->y][] = $unit->unitId;
-        if ($unit->type == 'wizard') {
+        if ($unit->isWizard()) {
             /** @var $unit Wizard */
             if ($createWatchData) {
                 list($createStartX, $createStartY, $createEndX, $createEndY) = $createWatchData;
             } else {
                 $createStartX = $unit->x - self::WATCH_RADIUS;
-                $createStartY = $unit->x - self::WATCH_RADIUS;
-                $createEndX   = $unit->y + self::WATCH_RADIUS;
+                $createStartY = $unit->y - self::WATCH_RADIUS;
+                $createEndX   = $unit->x + self::WATCH_RADIUS;
                 $createEndY   = $unit->y + self::WATCH_RADIUS;
             }
             // here we will put userId into all cells that user can see.
@@ -132,6 +132,10 @@ class MapObject
                         if ($createWatchData) {
                             // here we sure that user is see new cell. Maybe we should spawn something here?
                             $this->game->newCellIsVisible($point[0], $point[1]);
+                        } else {
+                            // here we shure that this wizard is just added to map.
+                            // That means that this cell is new for him. we need add in to his wision
+                            $unit->vision[$point[0]][$point[1]] = $this->getCell($point[0], $point[1]);
                         }
                     }
                     $this->watchman[$point[0]][$point[1]][$unit->userId] = $unit->userId;
@@ -146,7 +150,7 @@ class MapObject
         $objects = $this->getUnits($oldX, $oldY);
         if (($key = array_search($unit->unitId, $objects)) !== false) {
             unset($this->units[$oldX][$oldY][$key]);
-            if ($unit->type == 'wizard') {
+            if ($unit->isWizard()) {
                 /** @var $unit Wizard */
                 if ($oldX == $unit->x) {
                     list($delStartY, $delEndY, $createStartY, $createEndY) = Geometry::calculateWatchmanChange($oldY, $unit->y);
@@ -288,7 +292,6 @@ class MapObject
 
     public function getCells($list = array())
     {
-        $return = [];
         $cells  = $this->getCellsIfExists($list, true);
         if ($this->checkAndGenerate()) {
             $cells = $this->getCellsIfExists($list);

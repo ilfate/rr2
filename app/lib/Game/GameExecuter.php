@@ -73,7 +73,7 @@ class GameExecuter {
 
     public function loadAllChunks($battleMapId)
     {
-        return $this->chunkModel->where('battle_map_id', '=', $battleMapId)->get();
+        return $this->chunkModel->where('battle_map_id', '=', $battleMapId)->get()->toArray();
     }
 
     public function loadMonsters($battleMapId)
@@ -93,7 +93,7 @@ class GameExecuter {
 
     public function saveMonster($monster)
     {
-        $this->monsterModel->where('id', '=', $monster['id'])->where('battle_map_id', '=', $monster['battle_map_id'])->update($monster);
+        $this->monsterModel->saveMonster($monster);
     }
 
     public function newMonster($monster)

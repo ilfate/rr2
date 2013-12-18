@@ -14,5 +14,6 @@ use Game\Units\Unit;
 
 class Might extends Wizard
 {
+    const STATS_STA_EFFECT = 10;
     public $logicCode = 'wm';
 }

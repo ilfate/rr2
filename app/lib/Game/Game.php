@@ -80,7 +80,7 @@ class Game
             foreach ($monsters as $monsterData) {
                 $monsterData['data'] = json_decode($monsterData['data'], true);
                 $monsterClass = 'Game\Units\Monsters\\' . ucfirst($monsterData['type']);
-                $this->addUnit(new $monsterClass($monsterData), false);
+                $this->addUnit(new $monsterClass($this, $monsterData), false);
             }
         }
         $this->countUnits = count($this->units);
@@ -125,7 +125,18 @@ class Game
     protected function displayUnitsOnMap($units)
     {
         foreach ($units as $unit) {
-            $this->addLog($this->map->getWatchman($unit->x, $unit->y), $unit->unitId, 'new');
+            if ($unit->isWizard()) {
+                $data = ['w', $unit->class];
+                $unit->exportVisibleMap();
+            } else {
+                $data = ['m', $unit->monsterType];
+            }
+            $data[] = $unit->health;
+            $data[] = $unit->maxHealth;
+            $data[] = $unit->x;
+            $data[] = $unit->y;
+            $data[] = $unit->d;
+            $this->addLog($this->map->getWatchman($unit->x, $unit->y), $unit->unitId, 'new', $data);
         }
     }
 
@@ -157,8 +168,11 @@ class Game
     {
         foreach ($watchers as $watcherId)
         {
+            if (!isset($this->log[$watcherId][$this->getTime()])) {
+                $this->log[$watcherId][$this->getTime()] = [];
+            }
             // who | what | when | with what
-            $this->log[$watcherId][] = array($performer, $code, $this->getTime(), $data);
+            $this->log[$watcherId][$this->getTime()][] = array($performer, $code, $data);
         }
     }
 
