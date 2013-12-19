@@ -136,7 +136,13 @@ class MapObject
                         }
                     }
                     $this->watchman[$point[0]][$point[1]][$unit->userId] = $unit->userId;
-                    $unit->putVisibleCell($point[0], $point[1], $this->getCell($point[0], $point[1]));
+                    $unit->putVisibleCell($currentX, $currentY, $this->getCell($point[0], $point[1]));
+                    if (!empty($this->units[$point[0]][$point[1]]) && $createWatchData) {
+                        // we now see new cell and there is some one
+                        foreach ($this->units[$point[0]][$point[1]] as $unitId) {
+                            $this->game->unitAppearsOnScreen($this->game->getUnit($unitId), $unit->userId);
+                        }
+                    }
                 }
             }
         }

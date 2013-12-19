@@ -7,6 +7,7 @@
 
 namespace Game\Units\Wizards;
 
+use Game\Game;
 use Game\Geometry\Point;
 use Game\Units\Unit;
 use Game\Units\Logic;
@@ -26,8 +27,9 @@ abstract class Wizard extends Unit
     public $type = 'wizard';
 
     public $vision = array();
+    public $visionIsExported = false;
 
-    public function __construct($game, $wizardData)
+    public function __construct(Game $game, $wizardData)
     {
         $this->game           = $game;
         $this->ownerType      = 'player';
@@ -74,7 +76,13 @@ abstract class Wizard extends Unit
 
     public function putVisibleCell($x, $y, $cell)
     {
-        $this->vision[$x - $this->x][$y - $this->y] = $cell;
+        $dx = $x - $this->x;
+        $dy = $y - $this->y;
+        $this->vision[$dx][$dy] = $cell;
+        if ($this->visionIsExported) {
+            // this is new cell and we need to log it
+            $this->game->addLog([$this->userId], $this->unitId, 'c', [$dx, $dy, $cell]);
+        }
     }
 
     public function exportVisibleMap()
@@ -85,6 +93,7 @@ abstract class Wizard extends Unit
                  $visibleArea[] = $cell;
             }
         }
+        $this->visionIsExported = true;
         return implode('|', $visibleArea);
     }
 }

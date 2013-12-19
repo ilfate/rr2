@@ -85,7 +85,7 @@ class Game
         }
         $this->countUnits = count($this->units);
         $this->map->putUnitsOnTheMap($this->units);
-        $this->displayUnitsOnMap($this->units);
+        $this->bootstrapUnitsOnMap($this->units);
     }
 
     /**
@@ -115,31 +115,56 @@ class Game
         $this->countUnits++;
         if ($justCreatedUnit) {
             $this->map->addUnitToTheMap($unit);
-            $this->displayUnitsOnMap([$unit]);
+            $this->bootstrapUnitsOnMap([$unit]);
         }
     }
 
     /**
      * @param Unit[] $units
      */
-    protected function displayUnitsOnMap($units)
+    protected function bootstrapUnitsOnMap($units)
     {
         foreach ($units as $unit) {
+            $data = [
+                $unit->health,
+                $unit->maxHealth,
+                $unit->x,
+                $unit->y,
+                $unit->d
+            ];
             if ($unit->isWizard()) {
                 /** @var Units\Wizards\Wizard $unit */
                 $this->addLog([$unit->userId], $unit->unitId, 'map', [$unit->exportVisibleMap()]);
-                $data = ['w', $unit->class];
+                $data[] = 'w';
+                $data[] = $unit->class;
             } else {
                 /** @var Units\Monsters\Monster $unit */
-                $data = ['m', $unit->monsterType];
+                $data[] = 'm';
+                $data[] = $unit->monsterType;
             }
-            $data[] = $unit->health;
-            $data[] = $unit->maxHealth;
-            $data[] = $unit->x;
-            $data[] = $unit->y;
-            $data[] = $unit->d;
             $this->addLog($this->map->getWatchman($unit->x, $unit->y), $unit->unitId, 'new', $data);
         }
+    }
+
+    public function unitAppearsOnScreen($unit, $userId)
+    {
+        $data = [
+            $unit->health,
+            $unit->maxHealth,
+            $unit->x,
+            $unit->y,
+            $unit->d
+        ];
+        if ($unit->isWizard()) {
+            /** @var Units\Wizards\Wizard $unit */
+            $data[] = 'w';
+            $data[] = $unit->class;
+        } else {
+            /** @var Units\Monsters\Monster $unit */
+            $data[] = 'm';
+            $data[] = $unit->monsterType;
+        }
+        $this->addLog([$userId], $unit->unitId, 'new', $data);
     }
 
     /**

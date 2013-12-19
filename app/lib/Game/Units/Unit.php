@@ -9,7 +9,6 @@
 namespace Game\Units;
 
 use Game\Game;
-use Game\Map\MapObject;
 use Game\Units\Actions\Action;
 use Game\Units\Logic\Logic;
 
