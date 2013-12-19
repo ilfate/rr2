@@ -72,8 +72,19 @@ abstract class Wizard extends Unit
         return $return;
     }
 
+    public function putVisibleCell($x, $y, $cell)
+    {
+        $this->vision[$x - $this->x][$y - $this->y] = $cell;
+    }
+
     public function exportVisibleMap()
     {
-
+        $visibleArea = [];
+        foreach ($this->vision as $x => $column) {
+            foreach ($column as $y => $cell) {
+                 $visibleArea[] = $cell;
+            }
+        }
+        return implode('|', $visibleArea);
     }
 }

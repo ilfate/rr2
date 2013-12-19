@@ -28,7 +28,6 @@ return array(
     'wizards' => array(
         'fire'  => array(
             'defaultHealth' => 50,
-            'statsEffect' => [],
             'statsDefault' => [
                 'sta' => 5,
                 'wis' => 5,
@@ -48,12 +47,6 @@ return array(
         ),
         'might' => array(
             'defaultHealth' => 50,
-            'statsEffect' => [
-                'sta' => 10,
-                'wis' => 5,
-                'int' => 5,
-                'spi' => 5,
-            ],
             'statsDefault' => [
                 'sta' => 6,
                 'wis' => 5,
@@ -65,6 +58,9 @@ return array(
     'actions' => [
         'mf' => [
             'className' => 'MoveForward'
+        ],
+        'rl' => [
+            'className' => 'RotateLeft'
         ]
     ],
     'logic' => [

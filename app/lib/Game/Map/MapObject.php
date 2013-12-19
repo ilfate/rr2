@@ -1,8 +1,9 @@
 <?php
 /**
  * ILFATE PHP ENGINE
+ *
  * @autor Ilya Rubinchik ilfate@gmail.com
- * 2013
+ *        2013
  */
 
 namespace Game\Map;
@@ -132,14 +133,10 @@ class MapObject
                         if ($createWatchData) {
                             // here we sure that user is see new cell. Maybe we should spawn something here?
                             $this->game->newCellIsVisible($point[0], $point[1]);
-                        } else {
-                            // here we shure that this wizard is just added to map.
-                            // That means that this cell is new for him. we need add in to his wision
-                            $unit->vision[$point[0]][$point[1]] = $this->getCell($point[0], $point[1]);
                         }
                     }
                     $this->watchman[$point[0]][$point[1]][$unit->userId] = $unit->userId;
-
+                    $unit->putVisibleCell($point[0], $point[1], $this->getCell($point[0], $point[1]));
                 }
             }
         }
@@ -188,6 +185,7 @@ class MapObject
 
     /**
      * Get units from one cell
+     *
      * @param $x
      * @param $y
      *
@@ -214,8 +212,8 @@ class MapObject
     {
         $startX      = $x - $radius;
         $startY      = $y - $radius;
-        $endX = $x + $radius;
-        $endY = $y + $radius;
+        $endX        = $x + $radius;
+        $endY        = $y + $radius;
         $returnUnits = array();
         for ($currentX = $startX; $currentX <= $endX; $currentX++) {
             for ($currentY = $startY; $currentY <= $endY; $currentY++) {
@@ -280,6 +278,8 @@ class MapObject
             case 3 :
                 $next = [$x - 1, $y];
                 break;
+            default:
+                throw new \Exception('wtf in MapObject d(direction) is wrong!');
         }
         Geometry::prepareCellCoordinats($next[0], $next[1], $this->mapWidth, $this->mapHeight, $this->chunkSize);
         return $next;
@@ -292,7 +292,7 @@ class MapObject
 
     public function getCells($list = array())
     {
-        $cells  = $this->getCellsIfExists($list, true);
+        $cells = $this->getCellsIfExists($list, true);
         if ($this->checkAndGenerate()) {
             $cells = $this->getCellsIfExists($list);
         }

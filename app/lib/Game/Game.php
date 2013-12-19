@@ -126,9 +126,11 @@ class Game
     {
         foreach ($units as $unit) {
             if ($unit->isWizard()) {
+                /** @var Units\Wizards\Wizard $unit */
+                $this->addLog([$unit->userId], $unit->unitId, 'map', [$unit->exportVisibleMap()]);
                 $data = ['w', $unit->class];
-                $unit->exportVisibleMap();
             } else {
+                /** @var Units\Monsters\Monster $unit */
                 $data = ['m', $unit->monsterType];
             }
             $data[] = $unit->health;
