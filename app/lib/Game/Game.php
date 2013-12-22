@@ -51,6 +51,9 @@ class Game
     /** @var bool if false then we stop executing */
     private $running = true;
 
+    /** @var array of relation user -> wizard */
+    protected $usersWizards = array();
+
     /**
      * @param $data
      * @param $gameExecuter
@@ -71,7 +74,8 @@ class Game
 
         foreach ($data['wizards'] as $wizard) {
             $wizardClass = 'Game\Units\Wizards\\' . ucfirst($wizard['class']);
-            $this->addUnit(new $wizardClass($this, $wizard), false);
+            $wizardId = $this->addUnit(new $wizardClass($this, $wizard), false);
+            $this->usersWizards[$wizard['userId']] = $wizardId;
             // create log spot for user
             $this->log[$wizard['userId']] = array();
         }
@@ -117,6 +121,7 @@ class Game
             $this->map->addUnitToTheMap($unit);
             $this->bootstrapUnitsOnMap([$unit]);
         }
+        return $unitId;
     }
 
     /**
@@ -178,6 +183,16 @@ class Game
     }
 
     /**
+     * @param $userId
+     *
+     * @return int
+     */
+    public function getWizardIdByUserId($userId)
+    {
+        return $this->usersWizards[$userId];
+    }
+
+    /**
      * @return int
      */
     public function getTime()
@@ -186,20 +201,23 @@ class Game
     }
 
     /**
-     * @param array $watchers
+     * @param array $userIds
      * @param       $performer
      * @param       $code
      * @param array $data
      */
-    public function addLog(array $watchers, $performer, $code, $data = array())
+    public function addLog(array $userIds, $performer, $code, $data = array())
     {
-        foreach ($watchers as $watcherId)
+        foreach ($userIds as $userId)
         {
-            if (!isset($this->log[$watcherId][$this->getTime()])) {
-                $this->log[$watcherId][$this->getTime()] = [];
+            if ($code == 'new') {
+                $this->getUnit($this->getWizardIdByUserId($userId))->addVisibleUnit($performer);
+            }
+            if (!isset($this->log[$userId][$this->getTime()])) {
+                $this->log[$userId][$this->getTime()] = [];
             }
             // who | what | when | with what
-            $this->log[$watcherId][$this->getTime()][] = array($performer, $code, $data);
+            $this->log[$userId][$this->getTime()][] = array($performer, $code, $data);
         }
     }
 
@@ -228,6 +246,7 @@ class Game
     {
         $this->running = false;
         $this->saveUnits();
+        $this->gameExecuter->saveLog($this->log, $this->map->battleMapId, $this->getTime());
         echo 'hello world!';
     }
 

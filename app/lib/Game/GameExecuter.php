@@ -25,6 +25,8 @@ class GameExecuter {
     protected $chunkModel;
     /** @var \Monster */
     protected $monsterModel;
+    /** @var \BattleLog */
+    protected $battleLogModel;
 
     public $startTime;
 
@@ -40,6 +42,7 @@ class GameExecuter {
         $this->battleMapModel    = new \BattleMap();
         $this->chunkModel        = new \Chunk();
         $this->monsterModel      = new \Monster();
+        $this->battleLogModel    = new \BattleLog();
     }
 
     public function run()
@@ -54,8 +57,12 @@ class GameExecuter {
 
         foreach ($battleMapsWithWizards as $battleMapData)
         {
-            $game = new Game($battleMapData, $this);
-            $game->run();
+            try {
+                $game = new Game($battleMapData, $this);
+                $game->run();
+            } catch(\Exception $e) {
+                echo 'we have an exception here!!';
+            }
         }
 
         // TODO: log run results here
@@ -99,5 +106,18 @@ class GameExecuter {
     public function newMonster($monster)
     {
         $this->monsterModel->insert($monster);
+    }
+
+    public function saveLog($log, $battleMapId, $time)
+    {
+        foreach ($log as $userId => $log) {
+            $data = [
+                'user_id' => $userId,
+                'battle_map_id' => $battleMapId,
+                'time' => $time,
+                'data' => json_encode($log)
+            ];
+            $this->battleLogModel->create($data);
+        }
     }
 }

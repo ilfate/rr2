@@ -95,6 +95,7 @@ class WizardController extends BaseController {
             'chunk_id'      => 0,
             'data'          => '',
         ));
+        Redirect::to('game');
     }
 
 }

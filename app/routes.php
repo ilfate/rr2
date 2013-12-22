@@ -36,6 +36,7 @@ Route::group(array('before' => 'user.auth'), function()
     Route::controller('wizard', 'WizardController');
     Route::controller('map', 'MapController');
     Route::controller('battle-map', 'BattleMapController');
+    Route::controller('game', 'GameController');
 
 });
 

@@ -14,6 +14,20 @@
 
 	<body>
 
+    <script type="text/javascript" src="/js/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="/js/game/easeljs-0.5.0.min.js"></script>
+    <script type="text/javascript" src="/js/game/preloadjs-0.2.0.min.js"></script>
+
+    <script type="text/javascript" src="/js/events.js"></script>
+
+    <script type="text/javascript" src="/js/index.js"></script>
+    <script type="text/javascript" src="/js/ajax.js"></script>
+    <script type="text/javascript" src="/js/modal.js"></script>
+    <script type="text/javascript" src="/js/form.js"></script>
+    <script type="text/javascript" src="/js/pages.js"></script>
+
+    <script type="text/javascript" src="/js/game/canvasGame.js"></script>
+
 		<div class="container">
 			@if (Session::has('message'))
 				<div class="flash alert">

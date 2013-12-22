@@ -21,7 +21,8 @@ abstract class Monster extends Unit
 
     public function __construct(Game $game, $data = array())
     {
-        $this->game = $game;
+        $this->game      = $game;
+        $this->maxHealth = $this->stats['sta'] * 5;
         if (isset($data['health'])) {
             $this->isSaved     = true;
             $this->level       = $data['level'];
@@ -40,7 +41,7 @@ abstract class Monster extends Unit
             $this->d           = mt_rand(0, 3);
             $monsterConfig     = \Config::get('monsters.monsters.' . $this->monsterType);
             $this->stats       = $monsterConfig['stats'];
-            $this->health      = $this->stats['sta'] * 5;
+            $this->health      = $this->maxHealth;
         }
         $this->logic = \Config::get('wizards.logic.' . $this->logicCode);
 

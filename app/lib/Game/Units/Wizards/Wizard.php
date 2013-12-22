@@ -29,6 +29,8 @@ abstract class Wizard extends Unit
     public $vision = array();
     public $visionIsExported = false;
 
+    public $unitsVisible = array();
+
     public function __construct(Game $game, $wizardData)
     {
         $this->game           = $game;
@@ -95,5 +97,10 @@ abstract class Wizard extends Unit
         }
         $this->visionIsExported = true;
         return implode('|', $visibleArea);
+    }
+
+    public function addVisibleUnit($unitId)
+    {
+        $this->unitsVisible[$unitId] = $unitId;
     }
 }
