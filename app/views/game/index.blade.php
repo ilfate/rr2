@@ -15,7 +15,7 @@
         </canvas>
 
         <script>
-            CanvasActions.init({{{ $gameData }}})
+            CanvasActions.init(<?= $gameData ?>, <?= $gameLog ?>)
         </script>
 
     </div>

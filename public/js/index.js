@@ -31,10 +31,10 @@ function ilAlert(data)
 
 function ilfate_init() {
   Ajax.init();
-  $('.tip').tooltip();
-  $('.tip-bottom').tooltip({placement:'bottom'});
-  $('.tip-left').tooltip({placement:'left'});
-  $('.tip-right').tooltip({placement:'right'});
+  //$('.tip').tooltip();
+  //$('.tip-bottom').tooltip({placement:'bottom'});
+  //$('.tip-left').tooltip({placement:'left'});
+  //$('.tip-right').tooltip({placement:'right'});
   $('.label-stars').starred();
   $('.rounded_block').roundedBlock();
 }

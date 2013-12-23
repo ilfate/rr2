@@ -20,7 +20,7 @@ class CreateBattleLogs extends Migration {
 			$table->text('data');
 
 			$table->timestamps();
-            $table->index(['user_id', 'battle_map_id', 'time'], 'IDX_USER_ID_TIME');
+            $table->index(['user_id', 'battle_map_id', 'is_watched', 'time'], 'IDX_USER_ID_TIME');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 		});
 	}

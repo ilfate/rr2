@@ -26,7 +26,7 @@
     <script type="text/javascript" src="/js/form.js"></script>
     <script type="text/javascript" src="/js/pages.js"></script>
 
-    <script type="text/javascript" src="/js/game/canvasGame.js"></script>
+    <script type="text/javascript" src="/js/game/canvasActions.js"></script>
 
 		<div class="container">
 			@if (Session::has('message'))

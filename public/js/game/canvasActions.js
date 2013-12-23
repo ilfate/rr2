@@ -12,16 +12,21 @@ CanvasActions = function() {
   this.stage = {};
   this.loader = new createjs.PreloadJS();
   this.assets = [];
+  this.log = {};
+  this.mapInfo = {};
   
-  
-  this.init = function()
+  this.init = function(mapInfo, log)
   {
+    this.log = log;
+    this.mapInfo = mapInfo;
     this.stage = new createjs.Stage("demoCanvas");
     this.stage.enableMouseOver(10);
     this.stage.mouseMoveOutside = true;
     this.container = new createjs.Container();
-    this.width = $('#demoCanvas').width();
-    this.height = $('#demoCanvas').height();
+    this.width = (this.mapInfo['screen_size'] * 2 + 1) * this.mapInfo['cell_size'];
+    $('#canvas').width(this.width);
+    this.height = this.width;
+    $('#canvas').width(this.height);
 
     var manifest = this.getMapManifest();
     this.loader.loadManifest(manifest);
@@ -35,10 +40,22 @@ CanvasActions = function() {
   this.afterLoad = function()
   {
     this.createMap();  
-    this.createRobot();
-    this.createMonster();
-    
-    this.stage.addChild(this.container);  
+    //this.createRobot();
+    //this.createMonster();
+    var width = 64;
+    var bitmap = new createjs.Bitmap(CanvasActions.getObject("map"));
+    bitmap.sourceRect = new createjs.Rectangle(0, 0, 0, 0);
+
+    bitmap.x = width * 1 ;
+    bitmap.y = width * 1;
+    bitmap.sourceRect.x = 128;
+    bitmap.sourceRect.y = 128;
+    bitmap.sourceRect.width = width;
+    bitmap.sourceRect.height = width;
+
+    this.container.addChild(bitmap);
+
+    this.stage.addChild(this.container);
     this.stage.update(); 
     createjs.Ticker.addListener(CanvasActions);
     createjs.Ticker.setFPS(30); 
@@ -61,9 +78,10 @@ CanvasActions = function() {
     var map_container = new createjs.Container();
     map_container.x = this.width/2 - 32;  
     map_container.y = this.height/2 - 32;  
-    this.map = new IL.Map(map_container);
+    this.map = new IL.Map(map_container, this.mapInfo, this.log);
+    this.map.init();
     this.map.draw();
-    
+
     this.addTick(function(elapsedTime){
       CanvasActions.map.draw();
     });
@@ -146,8 +164,10 @@ function IL () {
 }
 IL = new IL();
 
-IL.Map = function(container) 
+IL.Map = function(container, mapInfo, log)
 {
+  this.log = log;
+  this.mapInfo = mapInfo;
   this.container = container;
   this.container_def_point = new IL.Point(container.x, container.y)
   
@@ -155,9 +175,10 @@ IL.Map = function(container)
   this.cells = [];
   this.cell_idx = [];
   this.binded_objects = [];
-  this.cell_width = 64;
-  this.map_radius = 4;
-  this.vision_radius = 3;
+  this.cell_width = mapInfo['cell_size'];
+  this.map_radius = mapInfo['visionRadius'];
+  this.map_size   = mapInfo['visionRadius'] * 2 + 1;
+  this.vision_radius = mapInfo['visionRadius'];
   this.x = 0;
   this.y = 0;
   this.camera = new IL.Point(0, 0);
@@ -165,6 +186,30 @@ IL.Map = function(container)
   this.centerPoint = new IL.Point(0, 0);
   
   this.animation = new IL.Animation("move");
+
+  this.init = function()
+  {
+    // parse initial map
+    for(var time in this.log) {
+      for(var i in this.log[time]) {
+        // here we looking for map code. Map is one message from all of this
+        if (this.log[time][i][1] == 'map') {
+          var rawMap = this.log[time][i][2][0];
+          var map = rawMap.split('|');
+          var k = 0;
+          for(var x = -this.vision_radius; x <= this.vision_radius; x++) {
+            this.cells[x] = [];
+            for(var y = -this.vision_radius; y <= this.vision_radius; y++) {
+              this.cells[x][y] = new IL.Cell(new IL.Point(x, y), this.getSpriteType(map[k]));
+              k++;
+            }
+          }
+          break;
+        }
+      }
+      break;
+    }
+  }
 
   this.setCamera = function(x, y, speed) 
   {
@@ -217,38 +262,43 @@ IL.Map = function(container)
     var y = 0;
     switch(type) {
       case "floor":x = 0;y = 0;break;
-      case "wall":x = 8;y = 5;break;      
-      case "wall_d1_1":x = 9;y = 6;break; 
-      case "wall_d1_2":x = 0;y = 7;break; 
-      case "wall_d1_3":x = 1;y = 7;break; 
-      case "wall_d1_4":x = 2;y = 7;break; 
-      case "wall_d2_1":x = 3;y = 7;break; 
-      case "wall_d2_2":x = 4;y = 7;break; 
-      case "wall_d2_3":x = 5;y = 7;break; 
-      case "wall_d2_4":x = 6;y = 7;break; 
-      case "wall_d3_1":x = 7;y = 7;break; 
-      case "wall_d3_2":x = 8;y = 7;break; 
-      case "wall_d3_3":x = 9;y = 7;break; 
-      case "wall_d3_4":x = 0;y = 8;break; 
-      
+      case "a6":x = 8;y = 5;break;
+      case "a3":x = 9;y = 6;break;
+      case "a7":x = 0;y = 8;break;
+      case "a4":x = 7;y = 7;break;
+      case "a5":x = 2;y = 7;break;
+      case "wall_d1_1":x = 9;y = 6;break;
+      case "wall_d1_2":x = 0;y = 7;break;
+      case "wall_d1_3":x = 1;y = 7;break;
+      case "wall_d1_4":x = 2;y = 7;break;
+      case "wall_d2_1":x = 3;y = 7;break;
+      case "wall_d2_2":x = 4;y = 7;break;
+      case "wall_d2_3":x = 5;y = 7;break;
+      case "wall_d2_4":x = 6;y = 7;break;
+      case "wall_d3_1":x = 7;y = 7;break;
+      case "wall_d3_2":x = 8;y = 7;break;
+      case "wall_d3_3":x = 9;y = 7;break;
+      case "wall_d3_4":x = 0;y = 8;break;
+
       case "floor_d":x = 0;y = 1;break;
-      case "floor_1":x = 2;y = 1;break;
-      case "floor_2":x = 7;y = 0;break;
-      case "floor_3":x = 3;y = 1;break;
+      case "s1":x = 2;y = 1;break;
+      case "a1":x = 7;y = 0;break;
+      case "a2":x = 3;y = 1;break;
       case "floor_4":x = 1;y = 1;break;
-      
-      case "monst_1":x = 1;y = 8;break; 
-      case "monst_2":x = 2;y = 8;break; 
-      case "monst_3":x = 3;y = 8;break; 
-      case "monst_4":x = 4;y = 8;break; 
-      case "monst_5":x = 5;y = 8;break; 
-      case "monst_6":x = 6;y = 8;break; 
-      case "monst_7":x = 7;y = 8;break; 
-      case "monst_8":x = 8;y = 8;break; 
-      
-      case "robot_1":x = 9;y = 8;break; 
-      case "robot_2":x = 0;y = 9;break; 
-      case "robot_3":x = 1;y = 9;break; 
+
+      case "monst_1":x = 1;y = 8;break;
+      case "monst_2":x = 2;y = 8;break;
+      case "monst_3":x = 3;y = 8;break;
+      case "monst_4":x = 4;y = 8;break;
+      case "monst_5":x = 5;y = 8;break;
+      case "monst_6":x = 6;y = 8;break;
+      case "monst_7":x = 7;y = 8;break;
+      case "monst_8":x = 8;y = 8;break;
+
+      case "robot_1":x = 9;y = 8;break;
+      case "robot_2":x = 0;y = 9;break;
+      case "robot_3":x = 1;y = 9;break;
+      default : alert('no cell of type ' + type + ' found');
     }
     return {"x": x*this.cell_width,"y":y*this.cell_width};
   }
@@ -264,13 +314,14 @@ IL.Map = function(container)
   }
   this.getCell = function(x, y)
   {
-    var name = x + '_' + y;
-    var idx = $.inArray(name, this.cell_idx)
-    if(idx != -1) {
-      return this.cells[idx];
-    } else {
-      return false;
-    }
+//    var name = x + '_' + y;
+//    var idx = $.inArray(name, this.cell_idx)
+//    if(idx != -1) {
+//      return this.cells[idx];
+//    } else {
+//      return false;
+//    }
+    return this.cells[x][y];
   }
   this.daleteCell = function(x, y) {
     var name = x + '_' + y;
@@ -474,15 +525,17 @@ IL.Map = function(container)
       this.checkAllVisibleCells();
       this.container.removeAllChildren();
       var cell_need_more_draw = false;
-      for(var i in this.cells) 
+      for(var x in this.cells)
       {
-        if(this.cells[i].visible) 
-        {
-          if(this.cells[i].draw(this.container, this.cell_width))
+        for(var y in this.cells[x]) {
+          if(this.cells[x][y].visible)
           {
-            cell_need_more_draw = true;
+            if(this.cells[x][y].draw(this.container, this.cell_width))
+            {
+              cell_need_more_draw = true;
+            }
+            this.cells[x][y].visible = false;
           }
-          this.cells[i].visible = false;
         }
       }
       if(!this.animation.isRunning() && !cell_need_more_draw) {
@@ -898,7 +951,7 @@ IL.Point = function(x, y)
 /////////////////////////////////////////////////////   CELL     ///////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-IL.Cell = function(Point, type)
+IL.Cell = function(Point, sprite)
 {
   this.visible = false;
   this.shape = new createjs.Shape();
@@ -908,6 +961,7 @@ IL.Cell = function(Point, type)
   this.cutTop = 0;
   this.cutBottom = 0;
   this.taken = false;
+  this.sprite = sprite;
   
   this.newType = true;
   if(Point) 
@@ -916,14 +970,13 @@ IL.Cell = function(Point, type)
   } else {
     info('error. Cell needs a Point object')
   }
-  
+
   this.setType = function(type)
   {
     this.type = type;
     this.sprite = CanvasActions.map.getSpriteType(type);
     return this;
   }
-  this.setType(type);
   
   this.runAnimation = function(name)
   {
