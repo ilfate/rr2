@@ -19,7 +19,8 @@ CanvasActions = function() {
   {
     this.log = log;
     this.mapInfo = mapInfo;
-    this.stage = new createjs.Stage("demoCanvas");
+    var canvas = document.getElementById("canvas");
+    this.stage = new createjs.Stage(canvas);
     this.stage.enableMouseOver(10);
     this.stage.mouseMoveOutside = true;
     this.container = new createjs.Container();
@@ -42,14 +43,14 @@ CanvasActions = function() {
     this.createMap();  
     //this.createRobot();
     //this.createMonster();
-    var width = 64;
+    var width = 500;
     var bitmap = new createjs.Bitmap(CanvasActions.getObject("map"));
     bitmap.sourceRect = new createjs.Rectangle(0, 0, 0, 0);
 
     bitmap.x = width * 1 ;
     bitmap.y = width * 1;
-    bitmap.sourceRect.x = 128;
-    bitmap.sourceRect.y = 128;
+    bitmap.sourceRect.x = 500;
+    bitmap.sourceRect.y = 500;
     bitmap.sourceRect.width = width;
     bitmap.sourceRect.height = width;
 
