@@ -127,10 +127,8 @@ class Geometry
         return [$x, $y];
     }
 
-    public static function prepareCellCoordinats(&$x, &$y, $mapWidth, $mapHeight, $chunkSize)
+    public static function prepareCellCoordinats(&$x, &$y, $cellsX, $cellsY)
     {
-        $cellsX = $mapWidth * $chunkSize;
-        $cellsY = $mapHeight * $chunkSize;
         if ($x <= 0) {
             $x = $cellsX + $x;
         } elseif ($x > $cellsX) {

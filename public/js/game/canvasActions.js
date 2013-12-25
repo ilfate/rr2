@@ -44,11 +44,12 @@ CanvasActions = function() {
   this.afterLoad = function()
   {
     this.createMap();
-    //this.createRobot();
-    //this.createMonster();
+    this.createUnits();
 
     this.stageMap.addChild(this.containerMap);
     this.stageMap.update();
+    this.stageUnits.addChild(this.containerUnits);
+    this.stageUnits.update();
     createjs.Ticker.addListener(CanvasActions);
     createjs.Ticker.setFPS(30);
     createjs.Ticker.useRAF = true;
@@ -80,32 +81,17 @@ CanvasActions = function() {
     this.containerMap.addChild(map_container);
   }
 
-  this.createRobot = function()
+  this.createUnits = function()
   {
-    var robot_container = new createjs.Container();
-    this.robot = new IL.Robot(robot_container, this.map);
-    this.robot.draw();
-    this.map.bindObject(this.robot);
+    var units_container = new createjs.Container();
+    this.units = new IL.Units(units_container, this.map, this.log);
+    this.units.init();
+    this.units.draw();
+    this.map.bindObject(this.units);
     this.addTick(function(elapsedTime){
-      CanvasActions.robot.draw();
+      CanvasActions.units.draw(elapsedTime);
     });
-    this.container.addChild(robot_container);
-  }
-
-  this.createMonster = function()
-  {
-    var monster_container = new createjs.Container();
-    var monster = new IL.Monster(monster_container, this.map);
-    //this.robot.draw();
-    this.map.bindObject(monster);
-    var name = "monster_" + this.objects.length;
-    monster.setName(name);
-    monster.draw();
-    this.addObject(monster, name);
-    this.addTick(function(elapsedTime){
-      CanvasActions.getObject(name).draw();
-    });
-    this.container.addChild(monster_container);
+    this.containerUnits.addChild(units_container);
   }
 
   this.addObject = function(obj, name) {
@@ -134,6 +120,7 @@ CanvasActions = function() {
       }
     }
     this.stageMap.update(elapsedTime);
+    this.stageUnits.update(elapsedTime);
   }
 
   this.stop = function() {
@@ -233,6 +220,7 @@ IL.Map = function(container, mapInfo, log)
   }
   this.move = function(x, y)
   {
+    var cameraMoveSpeed = 500;
     // we wiil move camera to oposit direction
     this.camera.x += -x * this.cell_width;
     this.camera.y += -y * this.cell_width;
@@ -249,7 +237,7 @@ IL.Map = function(container, mapInfo, log)
     }
     this.cells = this.newCells;
     this.newCells = [];
-    this.setCamera(0, 0, 250);//(this.map_radius * this.cell_width - this.center.distance(this.camera)) * 5 );
+    this.setCamera(0, 0, cameraMoveSpeed);//(this.map_radius * this.cell_width - this.center.distance(this.camera)) * 5 );
     this.needDraw = true;
   }
   var map = this;
@@ -588,46 +576,65 @@ IL.Map = function(container, mapInfo, log)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-///////////////////    ROBOT ///////////////////////////////////////////////////
+////////////////////   UNITS  //////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-IL.Robot = function(container, map)
+IL.Units = function(container, map, log)
 {
   this.container = container;
   this.map = map;
-  this.direction = 0;
+  this.log = log;
   this.needDraw = true;
+  this.units = [];
+  this.time = 0;
+  this.lastProcessedTime = 0;
+  this.tickTime = 200;
 
   this.container.x = this.map.container.x + this.map.cell_width / 2;
   this.container.y = this.map.container.y + this.map.cell_width / 2;
 
-  this.point = new IL.Point(this.map.centerPoint.x, this.map.centerPoint.y);
-  this.animation = new IL.Animation("move");
+  this.map.bindObject(this);
 
-  this.img =  new createjs.Bitmap(CanvasActions.getObject("map"));
-  this.img.sourceRect = new createjs.Rectangle(9 * this.map.cell_width,8 * this.map.cell_width, 64, 64);
-  this.img.regX = this.map.cell_width / 2;
-  this.img.regY = this.map.cell_width / 2;
+//  this.point = new IL.Point(this.map.centerPoint.x, this.map.centerPoint.y);
+//  this.animation = new IL.Animation("move");
+//
+//  this.img =  new createjs.Bitmap(CanvasActions.getObject("map"));
+//  this.img.sourceRect = new createjs.Rectangle(9 * this.map.cell_width,8 * this.map.cell_width, 64, 64);
+//  this.img.regX = this.map.cell_width / 2;
+//  this.img.regY = this.map.cell_width / 2;
 
-
-  this.move = function(x, y)
-  {
-    if(this.animation.isRunning()) return false;
-    var cell = this.map.getCell(this.point.x + x, this.point.y + y);
-    if(cell.isPassable())
-    {
-      cell.take();
-      this.map.getCell(this.point.x, this.point.y).free();
-      this.animation.setStart(new IL.Point(this.point.x * this.map.cell_width, this.point.y * this.map.cell_width));
-      this.point.x += x;
-      this.point.y += y;
-      this.animation
-        .setEnd(new IL.Point(this.point.x * this.map.cell_width, this.point.y * this.map.cell_width))
-        .setSpeed(150)
-        .setType("move")
-        .start();
-      this.map.move(x, y);
-      this.update();
+  this.init = function() {
+    for (var time in this.log) {
+      this.time = this.lastProcessedTime = time;
+      this.processLog(this.lastProcessedTime);
+      break;
     }
+  }
+
+  this.processLog = function(time)
+  {
+    for (var i in this.log[time]) {
+      switch (this.log[time][i][1]) {
+        case 'new' :
+          // here we will add new unit to draw it
+          var unit_container = new createjs.Container();
+          var newUnit = new IL.Unit(unit_container, this.map, this);
+          newUnit.init(this.log[time][i][2]);
+          newUnit.draw();
+          this.units[this.log[time][i][0]] = newUnit;
+          this.container.addChild(unit_container);
+        break;
+        case 'mf':
+          // unit moves forward!
+        break;
+      }
+    }
+  }
+
+  this.move = function(x, y, speed)
+  {
+//    for (var i in this.units) {
+//      this.units[i].move(x, y, speed);
+//    }
     return this;
   }
   this.rotate = function(side)
@@ -723,8 +730,12 @@ IL.Robot = function(container, map)
       this.img.rotation = 90 * this.direction;
     }
   }
-  this.draw = function()
+  this.draw = function(elapsedTime)
   {
+    for (var i in this.units) {
+      this.units[i].draw(elapsedTime);
+    }
+    return false;
     if(this.needDraw)
     {
       if(this.animation.isRunning()) {
@@ -745,7 +756,9 @@ IL.Robot = function(container, map)
   }
   this.update = function()
   {
-    this.needDraw = true;
+    for (var i in this.units) {
+      this.units[i].needDraw = true;
+    }
   }
 }
 
@@ -753,22 +766,20 @@ IL.Robot = function(container, map)
 /////////////////////////////////////////////////////   MONSTER    /////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-IL.Monster = function(container, map)
+IL.Unit = function(container, map, units)
 {
   this.container = container;
   this.map = map;
+  this.units = units;
   this.direction = 2;
   this.type = "crab";
   this.name = "";
   this.needDraw = true;
   this.spawn_radius = 0;
   this.spawn = new IL.Point(0, 1);
-  this.point = new IL.Point(0, 0);
   this.sprite = new IL.Point(0, 0);
   this.path = false;
   this.no_path = false;
-  this.target = false;
-  this.target_point = new IL.Point(0, 0);
   this.spawned = false;
   this.animationMove = new IL.Animation("move");
   this.animation = new IL.Animation("spriteAnimation");
@@ -776,44 +787,42 @@ IL.Monster = function(container, map)
     .setSpeed(1000)
     .setStart(["monst_1", "monst_2", "monst_3", "monst_4", "monst_5", "monst_6", "monst_7", "monst_8"])
     .start(true);
-  this.container.x = this.map.container.x + this.map.cell_width / 2;
-  this.container.y = this.map.container.y + this.map.cell_width / 2;
+  //this.container.x = this.map.container.x + this.map.cell_width / 2;
+  //this.container.y = this.map.container.y + this.map.cell_width / 2;
 
   this.img =  new createjs.Bitmap(CanvasActions.getObject("map"));
   this.img.sourceRect = new createjs.Rectangle(1 * this.map.cell_width, 8 * this.map.cell_width, this.map.cell_width, this.map.cell_width);
   this.img.regX = this.map.cell_width / 2;
   this.img.regY = this.map.cell_width / 2;
 
+  this.init = function(data)
+  {
+    this.health    = data[0];
+    this.maxHealth = data[1];
+    this.cell      = this.map.getCell(data[2], data[3]); // unit is located on cell not on coordinats
+    this.direction = data[4];
+    this.type      = data[5];
+    this.subType   = data[6];
+    this.spawned   = true;
+  }
+
   this.setName = function(name) {
     this.name = name;
   }
-  this.doSpawn = function()
-  {
-    if(this.spawn_radius > 0) {
-      var x = this.spawn.x + Math.floor(Math.random() * this.spawn_radius) * (Math.random() > 0.5 ? 1 : -1);
-      var y = this.spawn.y + Math.floor(Math.random() * this.spawn_radius) * (Math.random() > 0.5 ? 1 : -1);
-    } else {
-      var x = this.spawn.x;
-      var y = this.spawn.y;
-    }
-    this.point.set(x, y);
-    this.spawned = true;
-  }
-  this.doSpawn();
 
   this.move = function()
   {
     if(this.animationMove.isRunning()) return false;
-    var next = this.point.next(this.direction);
+    var next = this.cell.point.next(this.direction);
     var cell = this.map.getCell(next.x, next.y);
     if(cell.isPassable())
     {
       cell.take();
-      this.map.getCell(this.point.x, this.point.y).free();
-      this.animationMove.setStart(new IL.Point(this.point.x * this.map.cell_width, this.point.y * this.map.cell_width));
-      this.point = next;
+      this.map.getCell(this.cell.point.x, this.cell.point.y).free();
+      this.animationMove.setStart(new IL.Point(this.cell.point.x * this.map.cell_width, this.cell.point.y * this.map.cell_width));
+      this.cell = this.map.getCell(next.x, next.y);
       this.animationMove
-        .setEnd(new IL.Point(this.point.x * this.map.cell_width, this.point.y * this.map.cell_width))
+        .setEnd(new IL.Point(this.cell.point.x * this.map.cell_width, this.cell.point.y * this.map.cell_width))
         .setSpeed(850)
         .setType("move")
         .start();
@@ -852,10 +861,9 @@ IL.Monster = function(container, map)
   {
     if(this.animationMove.isRunning() && this.animationMove.isType("move"))
     {
-//      nfo(this.animationMove.getLast().x + ", " + this.animation.getLast().y);
       return this.animationMove.getLast();
     } else {
-      return new IL.Point(this.point.x * this.map.cell_width, this.point.y * this.map.cell_width);
+      return new IL.Point(this.cell.point.x * this.map.cell_width, this.cell.point.y * this.map.cell_width);
     }
   }
   this.checkAngle = function()
@@ -874,49 +882,12 @@ IL.Monster = function(container, map)
   this.findTarget = function() {
     this.target = CanvasActions.robot;
   }
-  this.action = function()
-  {
-    if(this.animationMove.isRunning()) {
-      return;
-    }
-    if(!this.target) {
-      this.findTarget();
-    }
-    if((!this.path && !this.no_path) || this.target.point.x != this.target_point.x || this.target.point.y != this.target_point.y)
-    {
-      this.path = this.map.createPath(this.point, this.target.point);
-      this.target_point.set(this.target.point.x, this.target.point.y);
-//      info(this.path);
-      this.no_path = !this.path;
 
-    }
-    if(this.path && this.path.length > 0)
-    {
-        var target = this.path[this.path.length-1].point;
-
-        var next_strate = this.point.next(this.direction);
-        if(next_strate.x == target.x && next_strate.y == target.y) {
-          this.move();
-          this.path.pop();
-        } else {
-          var right_dir = this.direction + 1;
-          if(right_dir > 3) right_dir = 0;
-//          info(right_dir);
-          var next_right = this.point.next(right_dir);
-          if(next_right.x == target.x && next_right.y == target.y) {
-            this.rotate(1);
-          } else {
-            this.rotate(-1);
-          }
-        }
-    }
-
-  }
   this.draw = function()
   {
     if(this.needDraw)
     {
-      this.action();
+      //this.action();
       if(this.animationMove.isRunning()) {
         this.animationMove.tic();
       }
@@ -927,15 +898,13 @@ IL.Monster = function(container, map)
       var position = this.getPosition();
       this.checkAngle();
 
-      var cell = this.map.getCell(this.point.x, this.point.y);
 
-
-      this.img.x = -this.map.camera.x + position.x + cell.cutLeft;
-      this.img.y = -this.map.camera.y + position.y + cell.cutTop;
-      this.img.sourceRect.x = this.sprite.x + cell.cutLeft;
-      this.img.sourceRect.y = this.sprite.y + cell.cutTop;
-      this.img.sourceRect.width = this.map.cell_width - cell.cutLeft - cell.cutRight;
-      this.img.sourceRect.height = this.map.cell_width - cell.cutTop - cell.cutBottom;
+      this.img.x = -this.map.camera.x + position.x + this.cell.cutLeft;
+      this.img.y = -this.map.camera.y + position.y + this.cell.cutTop;
+      this.img.sourceRect.x = this.sprite.x + this.cell.cutLeft;
+      this.img.sourceRect.y = this.sprite.y + this.cell.cutTop;
+      this.img.sourceRect.width = this.map.cell_width - this.cell.cutLeft - this.cell.cutRight;
+      this.img.sourceRect.height = this.map.cell_width - this.cell.cutTop - this.cell.cutBottom;
 //      info(this.img.x + ", " + this.img.y);
       this.container.addChild(this.img);
       if(!this.animation.isRunning() && ! this.animationMove.isRunning()) {

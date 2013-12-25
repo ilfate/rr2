@@ -211,7 +211,11 @@ class Game
         foreach ($userIds as $userId)
         {
             if ($code == 'new') {
-                $this->getUnit($this->getWizardIdByUserId($userId))->addVisibleUnit($performer);
+                $watcherUnit = $this->getUnit($this->getWizardIdByUserId($userId));
+                $watcherUnit->addVisibleUnit($performer);
+
+                // we doing this coz we need coordinates to be relative
+                list($data[2], $data[3]) = $watcherUnit->getRelativeCoordinates($data[2], $data[3]);
             }
             if (!isset($this->log[$userId][$this->getTime()])) {
                 $this->log[$userId][$this->getTime()] = [];

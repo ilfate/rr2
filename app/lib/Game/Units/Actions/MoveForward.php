@@ -21,9 +21,10 @@ class MoveForward extends Action{
         // here we will check is some one new can see this unit
         // if so, then we need to send a message about it to them
         $whoCanSeeMeHere = $this->game->map->getWatchman($this->unit->x, $this->unit->x);
-        foreach ($whoCanSeeMeHere as $unitId) {
-            if (!isset($this->game->getUnit($unitId)->unitsVisible[$this->unit->unitId])) {
-                $this->game->unitAppearsOnScreen($this->unit->unitId, $this->game->getUnit($unitId)->userId);
+        foreach ($whoCanSeeMeHere as $userId) {
+            $wizardWhoSeeMe = $this->game->getUnit($this->game->getWizardIdByUserId($userId));
+            if (!isset($wizardWhoSeeMe->unitsVisible[$this->unit->unitId])) {
+                $this->game->unitAppearsOnScreen($this->unit, $userId);
             }
         }
         if ($this->unit->isWizard()) {

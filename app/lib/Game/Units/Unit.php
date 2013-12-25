@@ -9,6 +9,7 @@
 namespace Game\Units;
 
 use Game\Game;
+use Game\Map\MapObject;
 use Game\Units\Actions\Action;
 use Game\Units\Logic\Logic;
 
@@ -59,6 +60,9 @@ abstract class Unit {
 
     /** @var Game */
     public $game;
+
+    /** @var array of visible units */
+    public $unitsVisible = array();
 
     /**
      * @return Action|mixed
@@ -146,5 +150,27 @@ abstract class Unit {
         $actionClass             = 'Game\Units\Actions\\' . $actionConf['className'];
         $this->action            = new $actionClass($this, $this->game);
         $this->action->startTime = $startTime;
+    }
+
+    /**
+     * Add a visible unit to array of visible
+     * @param $unitId
+     */
+    public function addVisibleUnit($unitId)
+    {
+        $this->unitsVisible[$unitId] = $unitId;
+    }
+
+    public function getRelativeCoordinates($x, $y)
+    {
+        $dx = $x - $this->x;
+        if (abs($dx) > MapObject::WATCH_RADIUS) {
+            $dx = $x - $this->game->map->width - $this->x;
+        }
+        $dy = $y - $this->y;
+        if (abs($dy) > MapObject::WATCH_RADIUS) {
+            $dy = $y - $this->game->map->height - $this->y;
+        }
+        return [$dx, $dy];
     }
 } 

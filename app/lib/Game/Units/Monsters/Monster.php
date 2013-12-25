@@ -21,27 +21,26 @@ abstract class Monster extends Unit
 
     public function __construct(Game $game, $data = array())
     {
-        $this->game      = $game;
-        $this->maxHealth = $this->stats['sta'] * 5;
+        $this->game        = $game;
+        $this->monsterType = $data['type'];
+        $monsterConfig     = \Config::get('monsters.monsters.' . $this->monsterType);
+        $this->stats       = $monsterConfig['stats'];
+        $this->maxHealth   = $this->stats['sta'] * 5;
         if (isset($data['health'])) {
-            $this->isSaved     = true;
-            $this->level       = $data['level'];
-            $this->monsterType = $data['type'];
-            $this->health      = $data['health'];
-            $this->x           = $data['data']['x'];
-            $this->y           = $data['data']['y'];
-            $this->d           = $data['data']['d'];
-            $this->logicCode   = $data['data']['l'];
+            $this->isSaved   = true;
+            $this->level     = $data['level'];
+            $this->health    = $data['health'];
+            $this->x         = $data['data']['x'];
+            $this->y         = $data['data']['y'];
+            $this->d         = $data['data']['d'];
+            $this->logicCode = $data['data']['l'];
             $this->loadAction($data['data']['a'][0], $data['data']['a'][1]);
         } else {
             // let`s create new monster
-            $this->monsterType = $data['type'];
-            $this->x           = $data['x'];
-            $this->y           = $data['y'];
-            $this->d           = mt_rand(0, 3);
-            $monsterConfig     = \Config::get('monsters.monsters.' . $this->monsterType);
-            $this->stats       = $monsterConfig['stats'];
-            $this->health      = $this->maxHealth;
+            $this->x      = $data['x'];
+            $this->y      = $data['y'];
+            $this->d      = mt_rand(0, 3);
+            $this->health = $this->maxHealth;
         }
         $this->logic = \Config::get('wizards.logic.' . $this->logicCode);
 

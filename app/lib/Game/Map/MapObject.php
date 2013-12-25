@@ -26,8 +26,14 @@ class MapObject
     protected $cells;
 
     protected $mapData;
+    /** @var int width in chunks */
     public $mapWidth;
+    /** @var int width in cells */
+    public $width;
+    /** @var int height in chunks */
     public $mapHeight;
+    /** @var int height in cells */
+    public $height;
     public $chunkSize;
     public $allowedBioms;
     public $battleMapId;
@@ -61,7 +67,9 @@ class MapObject
         }
         $this->mapData     = $mapData;
         $this->mapWidth    = $mapData['width'];
+        $this->width       = $mapData['width'] * $mapData['chunk_size'];
         $this->mapHeight   = $mapData['height'];
+        $this->height      = $mapData['height'] * $mapData['chunk_size'];
         $this->chunkSize   = $mapData['chunk_size'];
         $this->battleMapId = $mapData['battle_map_id'];
 
@@ -127,7 +135,7 @@ class MapObject
             for ($currentX = $createStartX; $currentX <= $createEndX; $currentX++) {
                 for ($currentY = $createStartY; $currentY <= $createEndY; $currentY++) {
                     $point = [$currentX, $currentY];
-                    $point = Geometry::prepareCellCoordinats($point[0], $point[1], $this->mapWidth, $this->mapHeight, $this->chunkSize);
+                    $point = Geometry::prepareCellCoordinats($point[0], $point[1], $this->width, $this->height);
                     if (!isset($this->watchman[$point[0]][$point[1]])) {
                         $this->watchman[$point[0]][$point[1]] = array();
                         if ($createWatchData) {
@@ -176,7 +184,7 @@ class MapObject
                 for ($currentX = $delStartX; $currentX <= $delEndX; $currentX++) {
                     for ($currentY = $delStartY; $currentY <= $delEndY; $currentY++) {
                         $point = [$currentX, $currentY];
-                        $point = Geometry::prepareCellCoordinats($point[0], $point[1], $this->mapWidth, $this->mapHeight, $this->chunkSize);
+                        $point = Geometry::prepareCellCoordinats($point[0], $point[1], $this->width, $this->height);
                         unset($this->watchman[$point[0]][$point[1]][$unit->userId]);
                     }
                 }
@@ -224,7 +232,7 @@ class MapObject
         for ($currentX = $startX; $currentX <= $endX; $currentX++) {
             for ($currentY = $startY; $currentY <= $endY; $currentY++) {
                 $point = [$currentX, $currentY];
-                $point = Geometry::prepareCellCoordinats($point[0], $point[1], $this->mapWidth, $this->mapHeight, $this->chunkSize);
+                $point = Geometry::prepareCellCoordinats($point[0], $point[1], $this->width, $this->height);
                 if (isset($this->units[$point[0]][$point[1]])) {
                     switch ($returnType) {
                         case 'list':
@@ -287,7 +295,7 @@ class MapObject
             default:
                 throw new \Exception('wtf in MapObject d(direction) is wrong!');
         }
-        Geometry::prepareCellCoordinats($next[0], $next[1], $this->mapWidth, $this->mapHeight, $this->chunkSize);
+        Geometry::prepareCellCoordinats($next[0], $next[1], $this->width, $this->height);
         return $next;
     }
 
@@ -402,7 +410,7 @@ class MapObject
         $return  = [];
         $forLoad = array();
         foreach ($list as &$pair) {
-            Geometry::prepareCellCoordinats($pair[0], $pair[1], $this->mapWidth, $this->mapHeight, $this->chunkSize);
+            Geometry::prepareCellCoordinats($pair[0], $pair[1], $this->width, $this->height);
             $chunkPair = Geometry::cellToChunk($pair[0], $pair[1], $this->chunkSize);
 
             if (!isset($this->cells[$pair[0]]) || !isset($this->cells[$pair[0]][$pair[1]])) {
