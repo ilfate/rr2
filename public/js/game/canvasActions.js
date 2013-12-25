@@ -313,6 +313,9 @@ IL.Map = function(container, mapInfo, log)
   }
   this.getCell = function(x, y)
   {
+    if (!this.cells[x][y]) {
+      this.cells[x][y] = new IL.Cell(new IL.Point(x, y));
+    }
     return this.cells[x][y];
   }
   this.daleteCell = function(x, y) {
@@ -618,13 +621,15 @@ IL.Units = function(container, map, log)
           // here we will add new unit to draw it
           var unit_container = new createjs.Container();
           var newUnit = new IL.Unit(unit_container, this.map, this);
-          newUnit.init(this.log[time][i][2]);
+          var unitId = this.log[time][i][0];
+          newUnit.init(unitId, this.log[time][i][2]);
           newUnit.draw();
-          this.units[this.log[time][i][0]] = newUnit;
+          this.units[unitId] = newUnit;
           this.container.addChild(unit_container);
         break;
         case 'mf':
           // unit moves forward!
+          this.units[this.log[time][i][0]].move();
         break;
       }
     }
@@ -736,34 +741,14 @@ IL.Units = function(container, map, log)
       this.units[i].draw(elapsedTime);
     }
     return false;
-    if(this.needDraw)
-    {
-      if(this.animation.isRunning()) {
-        this.animation.tic();
-      }
-      this.container.removeAllChildren();
-      var position = this.getPosition();
-      this.checkAngle();
-
-      this.img.x = -this.map.camera.x + position.x;
-      this.img.y = -this.map.camera.y + position.y;
-
-      this.container.addChild(this.img);
-      if(!this.animation.isRunning()) {
-        this.needDraw = false;
-      }
-    }
   }
   this.update = function()
   {
-    for (var i in this.units) {
-      this.units[i].needDraw = true;
-    }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////   MONSTER    /////////////
+/////////////////////////////////////////////////////   UNIT    /////////////
 ////////////////////////////////////////////////////////////////////////////////
 
 IL.Unit = function(container, map, units)
@@ -781,29 +766,30 @@ IL.Unit = function(container, map, units)
   this.path = false;
   this.no_path = false;
   this.spawned = false;
+  this.unitId = 0;
   this.animationMove = new IL.Animation("move");
   this.animation = new IL.Animation("spriteAnimation");
-  this.animation
-    .setSpeed(1000)
-    .setStart(["monst_1", "monst_2", "monst_3", "monst_4", "monst_5", "monst_6", "monst_7", "monst_8"])
-    .start(true);
-  //this.container.x = this.map.container.x + this.map.cell_width / 2;
-  //this.container.y = this.map.container.y + this.map.cell_width / 2;
+//  this.animation
+//    .setSpeed(1000)
+//    .setStart(["monst_1", "monst_2", "monst_3", "monst_4", "monst_5", "monst_6", "monst_7", "monst_8"])
+//    .start(true);
 
   this.img =  new createjs.Bitmap(CanvasActions.getObject("map"));
   this.img.sourceRect = new createjs.Rectangle(1 * this.map.cell_width, 8 * this.map.cell_width, this.map.cell_width, this.map.cell_width);
   this.img.regX = this.map.cell_width / 2;
   this.img.regY = this.map.cell_width / 2;
 
-  this.init = function(data)
+  this.init = function(unitId, data)
   {
     this.health    = data[0];
     this.maxHealth = data[1];
     this.cell      = this.map.getCell(data[2], data[3]); // unit is located on cell not on coordinats
     this.direction = data[4];
-    this.type      = data[5];
     this.subType   = data[6];
+    this.unitId    = unitId;
     this.spawned   = true;
+    this.setType(data[5]);
+    this.cell.addUnit(this.unitId, this);
   }
 
   this.setName = function(name) {
@@ -814,20 +800,18 @@ IL.Unit = function(container, map, units)
   {
     if(this.animationMove.isRunning()) return false;
     var next = this.cell.point.next(this.direction);
-    var cell = this.map.getCell(next.x, next.y);
-    if(cell.isPassable())
-    {
-      cell.take();
-      this.map.getCell(this.cell.point.x, this.cell.point.y).free();
-      this.animationMove.setStart(new IL.Point(this.cell.point.x * this.map.cell_width, this.cell.point.y * this.map.cell_width));
-      this.cell = this.map.getCell(next.x, next.y);
-      this.animationMove
-        .setEnd(new IL.Point(this.cell.point.x * this.map.cell_width, this.cell.point.y * this.map.cell_width))
-        .setSpeed(850)
-        .setType("move")
-        .start();
-      this.update();
-    }
+    this.cell.removeUnit(this.unitId);
+    this.animationMove.setStart(new IL.Point(this.cell.point.x * this.map.cell_width, this.cell.point.y * this.map.cell_width));
+    this.cell = this.map.getCell(next.x, next.y);
+    this.cell.addUnit(this.unitId, this);
+
+    this.animationMove
+      .setEnd(new IL.Point(this.cell.point.x * this.map.cell_width, this.cell.point.y * this.map.cell_width))
+      .setSpeed(850)
+      .setType("move")
+      .start();
+    this.update();
+
     return this;
   }
   this.rotate = function(side)
@@ -877,13 +861,13 @@ IL.Unit = function(container, map, units)
   this.setType = function(type)
   {
     this.type = type;
-    this.sprite = CanvasActions.map.getSpriteType(type);
+    this.sprite = CanvasActions.map.getSpriteType("monst_2");
   }
   this.findTarget = function() {
     this.target = CanvasActions.robot;
   }
 
-  this.draw = function()
+  this.draw = function(time)
   {
     if(this.needDraw)
     {
@@ -891,23 +875,59 @@ IL.Unit = function(container, map, units)
       if(this.animationMove.isRunning()) {
         this.animationMove.tic();
       }
-      this.setType(this.animation.tic());
-
+      //this.setType(this.animation.tic());
 
       this.container.removeAllChildren();
       var position = this.getPosition();
       this.checkAngle();
 
+      switch (this.direction) {
+        case 0:
+          var cutLeft = this.cell.cutLeft;
+          var imgCutLeft = this.cell.cutLeft;
+          var cutTop  = this.cell.cutTop;
+          var imgCutTop  = this.cell.cutTop;
+          var cutRight = this.cell.cutRight;
+          var cutBottom  = this.cell.cutBottom;
+          if (time && this.unitId == 6) {
+            //info("l=" + this.cell.cutLeft + " t=" + this.cell.cutTop + " r" + this.cell.cutRight + " b" + this.cell.cutBottom);
+          }
+        break;
+        case 1:
+          var imgCutLeft = this.cell.cutLeft;
+          var cutLeft = this.cell.cutTop;
+          var cutTop  = this.cell.cutRight;
+          var imgCutTop = this.cell.cutTop;
+          var cutRight = this.cell.cutBottom;
+          var cutBottom  = this.cell.cutLeft;
+        break;
+        case 2:
+          var cutLeft = this.cell.cutRight;
+          var imgCutLeft = this.cell.cutRight;
+          var cutTop  = this.cell.cutBottom;
+          var imgCutTop  = this.cell.cutBottom;
+          var cutRight = this.cell.cutLeft;
+          var cutBottom  = this.cell.cutTop;
+        break;
+        case 3:
+          var imgCutLeft = this.cell.cutBottom;
+          var cutLeft = this.cell.cutBottom;
+          var cutTop  = this.cell.cutLeft;
+          var imgCutTop = this.cell.cutLeft;
+          var cutRight = this.cell.cutTop;
+          var cutBottom  = this.cell.cutRight;
+          break;
+      }
 
-      this.img.x = -this.map.camera.x + position.x + this.cell.cutLeft;
-      this.img.y = -this.map.camera.y + position.y + this.cell.cutTop;
-      this.img.sourceRect.x = this.sprite.x + this.cell.cutLeft;
-      this.img.sourceRect.y = this.sprite.y + this.cell.cutTop;
-      this.img.sourceRect.width = this.map.cell_width - this.cell.cutLeft - this.cell.cutRight;
-      this.img.sourceRect.height = this.map.cell_width - this.cell.cutTop - this.cell.cutBottom;
+      this.img.x = -this.map.camera.x + position.x + imgCutLeft;
+      this.img.y = -this.map.camera.y + position.y + imgCutTop;
+      this.img.sourceRect.x = this.sprite.x + cutLeft;
+      this.img.sourceRect.y = this.sprite.y + cutTop;
+      this.img.sourceRect.width = this.map.cell_width - cutLeft - cutRight;
+      this.img.sourceRect.height = this.map.cell_width - cutTop - cutBottom;
 //      info(this.img.x + ", " + this.img.y);
       this.container.addChild(this.img);
-      if(!this.animation.isRunning() && ! this.animationMove.isRunning()) {
+      if (!this.animation.isRunning() && !this.animationMove.isRunning()) {
         this.needDraw = false;
       }
     }
@@ -968,6 +988,7 @@ IL.Cell = function(Point, sprite)
   this.cutBottom = 0;
   this.taken = false;
   this.sprite = sprite;
+  this.units = [];
 
   this.newType = true;
   if(Point)
@@ -1050,6 +1071,16 @@ IL.Cell = function(Point, sprite)
     return this;
   }
 
+  this.addUnit = function(id, unit)
+  {
+    this.units[id] = unit;
+  }
+
+  this.removeUnit = function(id)
+  {
+    this.units[id] = null;
+  }
+
   this.draw = function(container, width)
   {
     if(this.newType) {
@@ -1066,6 +1097,12 @@ IL.Cell = function(Point, sprite)
     this.bitmap.sourceRect.height = width - this.cutTop - this.cutBottom;
 
     container.addChild(this.bitmap);
+
+    for (var i in this.units) {
+      if (this.units[i]) {
+        this.units[i].needDraw = true;
+      }
+    }
 
     if(this.animation && this.animation.isRunning())
     {
