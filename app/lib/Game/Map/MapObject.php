@@ -164,11 +164,11 @@ class MapObject
             if ($unit->isWizard()) {
                 /** @var $unit Wizard */
                 if ($oldX == $unit->x) {
-                    list($delStartY, $delEndY, $createStartY, $createEndY) = Geometry::calculateWatchmanChange($oldY, $unit->y);
+                    list($delStartY, $delEndY, $createStartY, $createEndY) = Geometry::calculateWatchmanChange($oldY, $unit->y, $this->height);
                     $delStartX = $createStartX = $oldX - self::WATCH_RADIUS;
                     $delEndX   = $createEndX = $oldX + self::WATCH_RADIUS;
                 } else if ($oldY == $unit->y) {
-                    list($delStartX, $delEndX, $createStartX, $createEndX) = Geometry::calculateWatchmanChange($oldX, $unit->x);
+                    list($delStartX, $delEndX, $createStartX, $createEndX) = Geometry::calculateWatchmanChange($oldX, $unit->x, $this->width);
                     $delStartY = $createStartY = $oldY - self::WATCH_RADIUS;
                     $delEndY   = $createEndY = $oldY + self::WATCH_RADIUS;
                 } else {
@@ -281,13 +281,13 @@ class MapObject
     {
         switch ($d) {
             case 0 :
-                $next = [$x, $y + 1];
+                $next = [$x, $y - 1];
                 break;
             case 1 :
                 $next = [$x + 1, $y];
                 break;
             case 2 :
-                $next = [$x, $y - 1];
+                $next = [$x, $y + 1];
                 break;
             case 3 :
                 $next = [$x - 1, $y];

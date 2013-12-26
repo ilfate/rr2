@@ -553,9 +553,9 @@ IL.Map = function(container, mapInfo, log)
             // here vision point is moved!
             var direction = this.log[currentTime][i][2][1];
             switch (direction) {
-              case 0: this.move(0, 1); break;
+              case 0: this.move(0, -1); break;
               case 1: this.move(1, 0); break;
-              case 2: this.move(0, -1); break;
+              case 2: this.move(0, 1); break;
               case 3: this.move(-1, 0); break;
             }
           break;
@@ -565,8 +565,12 @@ IL.Map = function(container, mapInfo, log)
             if (!this.newCells[x]) {
               this.newCells[x] = [];
             }
-            this.newCells[x][y] = new IL.Cell(new IL.Point(x, y), this.getSpriteType(this.log[currentTime][i][2][2]));
+            var newCell = new IL.Cell(new IL.Point(x, y), this.getSpriteType(this.log[currentTime][i][2][2]));
+            this.newCells[x][y] = newCell;
           break;
+          default:
+            CanvasActions.units.action(this.log[currentTime][i][0], this.log[currentTime][i][1], this.log[currentTime][i][2]);
+          break
         }
       }
     }
@@ -619,19 +623,38 @@ IL.Units = function(container, map, log)
       switch (this.log[time][i][1]) {
         case 'new' :
           // here we will add new unit to draw it
-          var unit_container = new createjs.Container();
-          var newUnit = new IL.Unit(unit_container, this.map, this);
-          var unitId = this.log[time][i][0];
-          newUnit.init(unitId, this.log[time][i][2]);
-          newUnit.draw();
-          this.units[unitId] = newUnit;
-          this.container.addChild(unit_container);
+          this.addUnit(this.log[time][i][0], this.log[time][i][2]);
         break;
         case 'mf':
           // unit moves forward!
-          this.units[this.log[time][i][0]].move();
+          //this.units[this.log[time][i][0]].move();
         break;
       }
+    }
+  }
+  this.addUnit = function(unitId, unitData)
+  {
+    if (this.units[unitId]) {
+      info("UNITS: trying to recreate already exiting unit id=" + unitId);
+      return false;
+    }
+    var unit_container = new createjs.Container();
+    var newUnit = new IL.Unit(unit_container, this.map, this);
+    newUnit.init(unitId, unitData);
+    newUnit.draw();
+    this.units[unitId] = newUnit;
+    this.container.addChild(unit_container);
+  }
+  this.action = function(target, actionCode, data)
+  {
+    switch (actionCode) {
+      case 'new':
+        this.addUnit(target, data);
+      break;
+      case 'mf':
+        // unit moves forward!
+        this.units[target].move();
+      break;
     }
   }
 
@@ -701,21 +724,6 @@ IL.Units = function(container, map, log)
       case 3:
         this.move(1, 0);
       break;
-    }
-  }
-  this.destroyWall = function()
-  {
-    var next = this.point.next(this.direction);
-    var cell = this.map.getCell(next.x, next.y);
-    if(cell.type == "wall")
-    {
-//      cell.setType("floor");
-      cell.runAnimation("destroyWall");
-      this.animation
-        .setType("wait")
-        .setSpeed(400)
-        .start();
-      this.map.update();
     }
   }
   this.getPosition = function()
@@ -894,26 +902,26 @@ IL.Unit = function(container, map, units)
           }
         break;
         case 1:
-          var imgCutLeft = this.cell.cutLeft;
           var cutLeft = this.cell.cutTop;
-          var cutTop  = this.cell.cutRight;
+          var imgCutLeft = 0;//-this.cell.cutLeft;
+          var cutTop  = 0;//this.cell.cutRight;
           var imgCutTop = this.cell.cutTop;
           var cutRight = this.cell.cutBottom;
           var cutBottom  = this.cell.cutLeft;
         break;
         case 2:
-          var cutLeft = this.cell.cutRight;
-          var imgCutLeft = this.cell.cutRight;
-          var cutTop  = this.cell.cutBottom;
-          var imgCutTop  = this.cell.cutBottom;
+          var cutLeft = 0;//this.cell.cutRight;
+          var imgCutLeft = 0;//this.cell.cutRight;
+          var cutTop  = 0;//this.cell.cutBottom;
+          var imgCutTop  = 0;//this.cell.cutBottom;
           var cutRight = this.cell.cutLeft;
           var cutBottom  = this.cell.cutTop;
         break;
         case 3:
-          var imgCutLeft = this.cell.cutBottom;
-          var cutLeft = this.cell.cutBottom;
-          var cutTop  = this.cell.cutLeft;
-          var imgCutTop = this.cell.cutLeft;
+          var cutLeft = 0;//this.cell.cutBottom;
+          var imgCutLeft = 0;//this.cell.cutBottom;
+          var cutTop  = 0;//this.cell.cutLeft;
+          var imgCutTop = 0;//this.cell.cutLeft;
           var cutRight = this.cell.cutTop;
           var cutBottom  = this.cell.cutRight;
           break;

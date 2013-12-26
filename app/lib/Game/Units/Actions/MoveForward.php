@@ -31,5 +31,11 @@ class MoveForward extends Action{
             // is this is wizard, than we need to move the screen for user.
             $this->game->addLog([$this->unit->userId], $this->unit->unitId, 'vm', [1, $this->unit->d]);
         }
+        parent::log();
+    }
+
+    public function log()
+    {
+        // do nothing
     }
 } 

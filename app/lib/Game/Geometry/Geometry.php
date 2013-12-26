@@ -142,9 +142,14 @@ class Geometry
         return [$x, $y];
     }
 
-    public static function calculateWatchmanChange($oldValue, $newValue)
+    public static function calculateWatchmanChange($oldValue, $newValue, $mapSize)
     {
         $delta = $newValue - $oldValue;
+        if ($delta > 0.5 * $mapSize) {
+            $delta -= $mapSize;
+        } else if (abs($delta) > 0.5 * $mapSize) {
+            $delta += $mapSize;
+        }
         $sign = ($delta) / abs($delta);
         $start = $oldValue - (MapObject::WATCH_RADIUS * $sign);
         if ($sign < 0) {

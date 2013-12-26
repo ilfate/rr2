@@ -275,7 +275,7 @@ class Game
     public function newCellIsVisible($x, $y)
     {
         // here we should set logic to decide spawn monster or not.
-        if (mt_rand(1, 10) == 1) {
+        if (mt_rand(1, 20) == 1) {
             $this->spawnMonster($x, $y);
         }
     }
