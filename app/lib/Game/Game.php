@@ -147,11 +147,11 @@ class Game
                 $data[] = 'm';
                 $data[] = $unit->monsterType;
             }
-            $this->addLog($this->map->getWatchman($unit->x, $unit->y), $unit->unitId, 'new', $data);
+            $this->addLog($this->map->getWatchman($unit->x, $unit->y), $unit->unitId, 'init', $data);
         }
     }
 
-    public function unitAppearsOnScreen($unit, $userId)
+    public function unitAppearsOnScreen($unit, $userId, $code)
     {
         $data = [
             $unit->health,
@@ -169,7 +169,23 @@ class Game
             $data[] = 'm';
             $data[] = $unit->monsterType;
         }
-        $this->addLog([$userId], $unit->unitId, 'new', $data);
+        $this->addLog([$userId], $unit->unitId, $code, $data);
+    }
+
+    protected function prepareUnitLogData($code, $userId, $performer, &$data)
+    {
+        if (in_array($code, ['new', 'init', 'inc'])) {
+            $watcherUnit = $this->getUnit($this->getWizardIdByUserId($userId));
+            $watcherUnit->addVisibleUnit($performer);
+
+//            if ($code == 'new') {
+//                // if we here that mean unit we are about to dicover is not visible yet. that why we need to move it`s coordinats a bit.
+//                list($data[2], $data[3]) = $this->map->getNextCoords($data[2], $data[3], $watcherUnit->d, false);
+//            }
+
+            // we doing this coz we need coordinates to be relative
+            list($data[2], $data[3]) = $watcherUnit->getRelativeCoordinates($data[2], $data[3]);
+        }
     }
 
     /**
@@ -210,13 +226,8 @@ class Game
     {
         foreach ($userIds as $userId)
         {
-            if ($code == 'new') {
-                $watcherUnit = $this->getUnit($this->getWizardIdByUserId($userId));
-                $watcherUnit->addVisibleUnit($performer);
+            $this->prepareUnitLogData($code, $userId, $performer, $data);
 
-                // we doing this coz we need coordinates to be relative
-                list($data[2], $data[3]) = $watcherUnit->getRelativeCoordinates($data[2], $data[3]);
-            }
             if (!isset($this->log[$userId][$this->getTime()])) {
                 $this->log[$userId][$this->getTime()] = [];
             }
@@ -275,7 +286,7 @@ class Game
     public function newCellIsVisible($x, $y)
     {
         // here we should set logic to decide spawn monster or not.
-        if (mt_rand(1, 20) == 1) {
+        if (mt_rand(1, 200000) == 1) {
             $this->spawnMonster($x, $y);
         }
     }

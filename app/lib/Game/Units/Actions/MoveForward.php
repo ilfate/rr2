@@ -24,7 +24,7 @@ class MoveForward extends Action{
         foreach ($whoCanSeeMeHere as $userId) {
             $wizardWhoSeeMe = $this->game->getUnit($this->game->getWizardIdByUserId($userId));
             if (!isset($wizardWhoSeeMe->unitsVisible[$this->unit->unitId])) {
-                $this->game->unitAppearsOnScreen($this->unit, $userId);
+                $this->game->unitAppearsOnScreen($this->unit, $userId, 'inc');
             }
         }
         if ($this->unit->isWizard()) {

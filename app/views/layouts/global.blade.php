@@ -27,6 +27,9 @@
     <script type="text/javascript" src="/js/pages.js"></script>
 
     <script type="text/javascript" src="/js/game/canvasActions.js"></script>
+    <script type="text/javascript" src="/js/game/IL.Map.js"></script>
+    <script type="text/javascript" src="/js/game/IL.Units.js"></script>
+    <script type="text/javascript" src="/js/game/IL.Unit.js"></script>
 
 		<div class="container">
 			@if (Session::has('message'))

@@ -148,7 +148,7 @@ class MapObject
                     if (!empty($this->units[$point[0]][$point[1]]) && $createWatchData) {
                         // we now see new cell and there is some one
                         foreach ($this->units[$point[0]][$point[1]] as $unitId) {
-                            $this->game->unitAppearsOnScreen($this->game->getUnit($unitId), $unit->userId);
+                            $this->game->unitAppearsOnScreen($this->game->getUnit($unitId), $unit->userId, 'new');
                         }
                     }
                 }
@@ -277,7 +277,7 @@ class MapObject
         return $ids;
     }
 
-    public function getNextCoords($x, $y, $d)
+    public function getNextCoords($x, $y, $d, $prepareForMap = true)
     {
         switch ($d) {
             case 0 :
@@ -295,7 +295,9 @@ class MapObject
             default:
                 throw new \Exception('wtf in MapObject d(direction) is wrong!');
         }
-        Geometry::prepareCellCoordinats($next[0], $next[1], $this->width, $this->height);
+        if ($prepareForMap) {
+            Geometry::prepareCellCoordinats($next[0], $next[1], $this->width, $this->height);
+        }
         return $next;
     }
 
