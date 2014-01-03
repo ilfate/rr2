@@ -12,3 +12,4 @@
 */
 
 Artisan::add(new GameRunner());
+Artisan::add(new LogHelper());
