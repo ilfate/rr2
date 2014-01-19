@@ -71,6 +71,8 @@ class LogHelper {
         $map = [];
         $units = [];
         $middlePoint = [0, 0];
+        $newCells = [];
+        $actions = [];
 
         foreach ($log as $time => $events) {
             foreach ($events as $event) {
@@ -101,12 +103,32 @@ class LogHelper {
                                 $middlePoint[0] -= $data[0];
                             break;
                         }
+                        foreach ($newCells as $cellData) {
+                            if (!isset($map[$middlePoint[0] + $cellData[0]])) {
+                                $map[$middlePoint[0] + $cellData[0]] = [];
+                            }
+                            $map[$middlePoint[0] + $cellData[0]][$middlePoint[1] + $cellData[1]] = $cellData[2];
+                        }
+                        $newCells = [];
                     break;
                     case 'c':
-                        if (!isset($map[$middlePoint[0] + $data[0]])) {
-                            $map[$middlePoint[0] + $data[0]] = [];
+                        $newCells[] = $data;
+                    break;
+                    case 'init':
+                        $units[$who] = $data;
+                    break;
+                    case 'new':
+                        $units[$who] = $data;
+                    break;
+                    case 'mf':
+                        if (!isset($units[$who])) {
+                            echo "\n" . ' We are trying to move unexisting unit!' . "\n";
+                            die;
                         }
-                        $map[$middlePoint[0] + $data[0]][$middlePoint[1] + $data[1]] = $data[2];
+                        if (!isset($actions[$who])) {
+                            $actions[$who] = [];
+                        }
+                        $actions[$who][] = [$code, $data];
                     break;
                     default:
                         echo "\n" . ' CODE "' . $code . '" is unknown for log Helper' . "\n";
@@ -114,7 +136,35 @@ class LogHelper {
                 }
             }
         }
-        var_dump($map);
+        $this->printMap($map);
+    }
+
+    protected function printMap($map)
+    {
+        $rowDelimetr = "-----";
+        $colDelimetr = "|";
+        $width = count($map);
+
+        $reverseMap = [];
+        foreach ($map as $x => $col) {
+            foreach ($col as $y => $cell) {
+                if (!isset($reverseMap[$y])) {
+                    $reverseMap[$y] = [];
+                }
+                $reverseMap[$y][$x] = $cell;
+            }
+        }
+
+        foreach ($reverseMap as $y => $row) {
+            for ($i = 0; $i < $width; $i++) {
+                echo $rowDelimetr;
+            } echo "\n";
+            echo implode(" | ", $row);
+            echo "\n";
+        }
+        for ($i = 0; $i < $width; $i++) {
+            echo $rowDelimetr;
+        } echo "\n";
     }
 
     public function saveLog($log, $battleMapId, $time)
