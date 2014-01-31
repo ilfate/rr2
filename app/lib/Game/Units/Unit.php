@@ -141,6 +141,12 @@ abstract class Unit {
         return $this->type == 'wizard';
     }
 
+    /** @return bool */
+    public function isMonster()
+    {
+        return $this->type == 'monster';
+    }
+
     abstract public function prepareToSave();
 
     protected function loadAction($code, $startTime)

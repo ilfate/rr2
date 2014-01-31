@@ -151,7 +151,7 @@ class Game
         }
     }
 
-    public function unitAppearsOnScreen($unit, $userId, $code)
+    public function unitAppearsOnScreen(Unit $unit, $userId, $code)
     {
         $data = [
             $unit->health,
@@ -241,7 +241,8 @@ class Game
         foreach ($this->units as $unit) {
             if ($unit->isWizard()) {
                 $this->gameExecuter->saveWizard($unit->prepareToSave());
-            } else {
+            } else if ($unit->isMonster()) {
+                /** @var Monsters\Monster $unit */
                 $monsterData = $unit->prepareToSave();
                 if ($unit->isSaved) {
                     $this->gameExecuter->saveMonster($monsterData);
