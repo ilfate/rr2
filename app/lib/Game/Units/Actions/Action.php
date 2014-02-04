@@ -33,7 +33,7 @@ abstract class Action
         $this->game      = $game;
     }
 
-    public function log()
+    public function log($params = null)
     {
         $this->watchers =  $this->game->map->getWatchman($this->unit->x, $this->unit->y);
 
