@@ -38,7 +38,7 @@ class LogHelper extends Command {
 	 */
 	public function fire()
 	{
-		$logHelper = new \Game\LogHelper((int) $this->argument('userId'), (int) $this->argument('battleMapId'));
+		$logHelper = new \Game\LogHelper((int) $this->argument('userId'), (int) $this->argument('battleMapId'), $this->argument('params'));
         $logHelper->run();
 	}
 
@@ -52,6 +52,7 @@ class LogHelper extends Command {
 		return array(
 			array('userId', InputArgument::REQUIRED, 'User Id.'),
 			array('battleMapId', InputArgument::REQUIRED, 'Battle map Id.'),
+			array('params', InputArgument::OPTIONAL, 'Params'),
 		);
 	}
 

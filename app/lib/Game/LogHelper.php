@@ -13,6 +13,7 @@
 
 namespace Game;
 
+
 class LogHelper {
 
     /** @var \BattleWizard */
@@ -31,9 +32,9 @@ class LogHelper {
     protected $userId;
     protected $battleMapId;
 
+    protected $params;
 
-
-    public function __construct($userId, $battleMapId)
+    public function __construct($userId, $battleMapId, $params = '')
     {
         $this->userId = $userId;
         $this->battleMapId = $battleMapId;
@@ -44,6 +45,7 @@ class LogHelper {
         $this->chunkModel        = new \Chunk();
         $this->monsterModel      = new \Monster();
         $this->battleLogModel    = new \BattleLog();
+        $this->params            = explode(',', $params);
     }
 
     public function run()
@@ -53,7 +55,11 @@ class LogHelper {
             echo "\n" . ' WE DO NOT HAVE LOG FOR THIS USER AND MAP' . "\n";
             return;
         }
-        $this->analyzeLog($lastLog[0]['data']);
+        try {
+            $this->analyzeLog($lastLog[0]['data']);
+        } catch (\Exception $e) {
+            echo $e->getMessage();
+        }
     }
 
     public function analyzeLog($log)
@@ -136,7 +142,12 @@ class LogHelper {
                 }
             }
         }
-        $this->printMap($map);
+        if (in_array('map', $this->params)) {
+            $this->printMap($map);
+        }
+        if (in_array('act', $this->params)) {
+            $this->printActions($actions);
+        }
     }
 
     protected function printMap($map)
@@ -165,6 +176,16 @@ class LogHelper {
         for ($i = 0; $i < $width; $i++) {
             echo $rowDelimetr;
         } echo "\n";
+    }
+
+    public function printActions($actions)
+    {
+        foreach ($actions as $who => $unitActions) {
+            echo "\n Actions of Unit $who\n";
+            foreach ($unitActions as $action) {
+                echo $action[0] . ' > ';
+            }
+        }
     }
 
     public function saveLog($log, $battleMapId, $time)

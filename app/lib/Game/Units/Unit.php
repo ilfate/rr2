@@ -89,7 +89,7 @@ abstract class Unit {
             // now we do not have action in progress.
             // here we need to make decision about next action
             $this->action = $this->makeDecision($this, $this->game);
-            $this->action->log();
+            //$this->action->log();
             $this->triggerEvent(Event::BEFORE_ACTION);
             $this->action->onStart();
         }
