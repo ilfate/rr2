@@ -13,10 +13,14 @@
 
 Route::get('/', array('as' => 'main', 'uses' => 'MainController@index'));
 
+Route::get('/td', array('as' => 'td', 'uses' => 'TdController@index'));
+//Route::controller('td', 'TdController');
+
 Route::get('logout', array('as' => 'login.logout', 'uses' => 'LoginController@logout'));
 
 Route::group(array('before' => 'un_auth'), function()
 {
+
     Route::get('login', array('as' => 'login.index', 'uses' => 'LoginController@index'));
     Route::get('register', array('as' => 'login.register', 'uses' => 'LoginController@register'));
     Route::post('login', array('uses' => 'LoginController@login'));
