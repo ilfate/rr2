@@ -10,7 +10,7 @@
 			.error { color: red; font-style: italic; }
 			body { padding-top: 20px; }
 		</style>
-        <link href="/css/game.css" rel="stylesheet" />
+        <link href="/css/tdGame.css" rel="stylesheet" />
 	</head>
 
 	<body>

@@ -3,9 +3,10 @@
  */
 
 
-TD.Unit = function (facet) {
-    this.facet = facet;
-    this.direction = false;
+TD.Unit = function (game) {
+    this.game = game;
+    this.direction = 0;
+    this.active    = false;
     this.power     = 1
     this.unitId    = 0;
     this.oldX      = 0
@@ -15,18 +16,26 @@ TD.Unit = function (facet) {
     this.owner     = '';
 
     this.init = function () {
-        this.unitId = this.facet.getNewUnitId();
-        this.facet.setUnit(this);
+        this.unitId = this.game.getNewUnitId();
+        this.game.setUnit(this);
     }
 
     this.tick = function() {
         this.power ++;
-        var center = this.facet.getCenter();
+        var center = this.game.getCenter();
         if (center.x == this.x && center.y == this.y) {
             // center power bonus
             this.power ++;
         }
-        if (this.direction) {
+        if (!this.active) {
+            // inactive power charge bonus
+            this.power ++;
+        }
+
+        if (this.active) {
+            this.game.checkUnitDirection(this);
+        }
+        if (this.active) {
             this.move();
         }
     }
@@ -35,7 +44,7 @@ TD.Unit = function (facet) {
         if (x && y) {
             // move to specified position
         } else {
-            switch (direction) {
+            switch (this.direction) {
                 case 0: x = this.x; y = this.y - 1; break;
                 case 1: x = this.x + 1; y = this.y; break;
                 case 2: x = this.x; y = this.y + 1; break;
@@ -71,7 +80,12 @@ TD.Unit = function (facet) {
         this.owner = owner;
     }
 
-
+    this.activate = function() {
+        this.active = true;
+    }
+    this.deactivate = function() {
+        this.active = false;
+    }
 
 
 }

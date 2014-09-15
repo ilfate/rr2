@@ -34,7 +34,7 @@ TD.Map.Config = function () {
         }
         for (var x = 0; x < this.size; x++) {
             for (var y = 0; y < this.size; y++) {
-                if (x == 0 || y == 0 || x == this.size || y == this.size) {
+                if (x == 0 || y == 0 || x == this.size - 1 || y == this.size - 1) {
                     this.totalSpawnCells++;
                     this.spawnCellsFlat[this.totalSpawnCells] = {'x' : x, 'y': y};
                 }
