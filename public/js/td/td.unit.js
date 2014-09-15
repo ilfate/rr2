@@ -29,7 +29,7 @@ TD.Unit = function (game) {
 //        }
         if (!this.active) {
             // inactive power charge bonus
-            this.power ++;
+            this.power --;
         }
 
         if (this.active) {

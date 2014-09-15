@@ -205,7 +205,7 @@ TD.Game = function () {
         for (var unitId in this.units) {
             var unit1 = this.units[unitId];
             var existingUnitId = this.newMap.get(unit1.x, unit1.y);
-            if (existingUnitId) {
+            if (existingUnitId && this.units[existingUnitId] !== undefined) {
                 // here will be battle
 
                 var unit2 = this.units[existingUnitId];

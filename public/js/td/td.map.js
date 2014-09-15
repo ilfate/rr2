@@ -76,9 +76,6 @@ TD.Map = function (facet, config) {
 
         if (unit.owner == "bot" && (unit.x != unit.oldX || unit.y != unit.oldY)) {
             var center = this.getCenter().x;
-            debug('BOT_PATH for:' + unit.getId());
-            debug(unit);
-            debug(center);
             // here we will check is unit need to change direction
             if ((unit.x >= center - 1 && unit.x <= center + 1)
                 || (unit.y >= center - 1 && unit.y <= center + 1)) {
