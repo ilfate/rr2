@@ -7,6 +7,9 @@ TD.Map = function (facet, config) {
     this.facet = facet;
     this.config = config;
     this.unitIds = {};
+    this.mapEl = false;
+    this.oneCellPixelSize = 65;
+
 
     this.size  = config.getSize();
 
@@ -173,28 +176,67 @@ TD.Map = function (facet, config) {
     }
 
     this.draw = function(units) {
-        var mapArea = $('#tdMap');
-        mapArea.html('');
-        for (var y = 0; y < this.size; y ++) {
-            for (var x = 0; x < this.size; x ++) {
-                var unitId = this.get(x, y);
-                if (unitId && units[unitId] !== undefined) {
+        this.mapEl = $('#tdMap');
+        $('#tdMap .tdUnit').addClass('inUpdate');
 
-                    var unit = units[unitId];
-                    var el = $('<div></div>').addClass('tdCell').addClass('tdUnit').html(unit.power);
-                    if (unit.owner == 'player') {
-                        el.addClass('playerUnit');
-                        this.makeButtonsforUnit(el, unit);
-                    } else {
-                        el.addClass('botUnit');
-                    }
-                } else {
-                    var el = $('<div></div>').addClass('tdCell').addClass('emptyCell');
-                    // empty cell
-                }
-                mapArea.append(el);
+        for (var key in units) {
+            if (units[key]) {
+                this.drawUnit(units[key]);
             }
         }
+        $('#tdMap .tdUnit.inUpdate').fadeOut(1000, function(el) {
+            el.remove();
+        });
+        this.isDrawn = true;
+        // ok map is already there.
+    }
+
+    this.drawMap = function() {
+        this.mapEl = $('#tdMap');
+        this.mapEl.html('');
+        for (var y = 0; y < this.size; y ++) {
+            for (var x = 0; x < this.size; x ++) {
+                var el = $('<div></div>').addClass('tdCell').addClass('emptyCell');
+                // empty cell
+                this.mapEl.append(el);
+            }
+        }
+    }
+
+    this.drawUnit = function(unit) {
+        // is unit exist on map
+        var el = $('.unit-' + unit.getId());
+        if (el[0]) {
+            // unit exist
+            el.html(unit.power);
+            if (unit.owner == 'player') {
+                this.makeButtonsforUnit(el, unit);
+            }
+            el.removeClass('inUpdate');
+            el.animate({
+                'left' : unit.x * this.oneCellPixelSize,
+                'top' : unit.y * this.oneCellPixelSize
+            }, 1000)
+        } else {
+            // draw new unit
+            var el = $('<div></div>')
+                .addClass('tdUnit')
+                .addClass('unit-' + unit.getId())
+                .html(unit.power);
+            if (unit.owner == 'player') {
+                el.addClass('playerUnit');
+                this.makeButtonsforUnit(el, unit);
+            } else {
+                el.addClass('botUnit');
+            }
+            el.hide();
+            el.css('left', unit.x * this.oneCellPixelSize);
+            el.css('top',  unit.y * this.oneCellPixelSize);
+            el.fadeIn(1000)
+            this.mapEl.append(el);
+
+        }
+
     }
 
     this.makeButtonsforUnit = function(el, unit) {
@@ -215,14 +257,21 @@ TD.Map = function (facet, config) {
             switch (buttons[key]) {
                 case 'stop':
                     button
-                        .addClass('tdStopButton')
+                        .addClass('fa fa-shield')
                         .bind("click", function(){
                             TD.Facet.userActionStopUnit(unit.getId());
                         });
+                    switch (unit.direction) {
+                        case 0: button.addClass('tdGoTopButton'); break;
+                        case 1: button.addClass('tdGoRightButton'); break;
+                        case 2: button.addClass('tdGoBottomButton'); break;
+                        case 3: button.addClass('tdGoLeftButton'); break;
+                    }
                     break;
                 case 'go_0':
                     button
                         .addClass('tdGoTopButton')
+                        .addClass('fa fa-arrow-circle-up')
                         .bind("click", function(){
                             TD.Facet.userActionMoveUnit(unit.getId(), 0);
                         });
@@ -230,6 +279,7 @@ TD.Map = function (facet, config) {
                 case 'go_1':
                     button
                         .addClass('tdGoRightButton')
+                        .addClass('fa fa-arrow-circle-right')
                         .bind("click", function(){
                             TD.Facet.userActionMoveUnit(unit.getId(), 1);
                         });
@@ -237,6 +287,7 @@ TD.Map = function (facet, config) {
                 case 'go_2':
                     button
                         .addClass('tdGoBottomButton')
+                        .addClass('fa fa-arrow-circle-down')
                         .bind("click", function(){
                             TD.Facet.userActionMoveUnit(unit.getId(), 2);
                         });
@@ -244,6 +295,7 @@ TD.Map = function (facet, config) {
                 case 'go_3':
                     button
                         .addClass('tdGoLeftButton')
+                        .addClass('fa fa-arrow-circle-left')
                         .bind("click", function(){
                             TD.Facet.userActionMoveUnit(unit.getId(), 3);
                         });
@@ -254,13 +306,3 @@ TD.Map = function (facet, config) {
 
     }
 }
-
-
-/*
- #tdMap
- .tdUnit
- .emptyCell
-
- .tdButton
- .tdStopButton
- */

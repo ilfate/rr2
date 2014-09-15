@@ -23,10 +23,10 @@ TD.Unit = function (game) {
     this.tick = function() {
         this.power ++;
         var center = this.game.getCenter();
-        if (center.x == this.x && center.y == this.y) {
-            // center power bonus
-            this.power ++;
-        }
+//        if (center.x == this.x && center.y == this.y) {
+//            // center power bonus
+//            this.power ++;
+//        }
         if (!this.active) {
             // inactive power charge bonus
             this.power ++;

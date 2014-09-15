@@ -44,7 +44,7 @@ TD.Game = function () {
 
     this.pointsPerKill   = 5;
 
-    this.spawnBotsEveryTick = 2;
+    this.spawnBotsEveryTick = 1;
     this.turnsBotWasSpawnd  = 0;
 
     this.init = function() {
@@ -58,6 +58,7 @@ TD.Game = function () {
 
         this.spawnPlayerUnit();
         this.spawnBotUnit();
+        this.currentMap.drawMap();
         this.currentMap.draw(this.units);
     }
 
@@ -113,7 +114,7 @@ TD.Game = function () {
             return;
         }
         var emptyCell = false;
-        for (var i = 0; i < 3; i++) {
+        for (var i = 0; i < 5; i++) {
             //we will do 3 attempts to find empty cell.
             var cell = this.currentMap.getRandomBotSpawnCell();
             if (!this.currentMap.get(cell.x, cell.y)) {
