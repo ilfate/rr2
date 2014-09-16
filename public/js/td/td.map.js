@@ -8,9 +8,9 @@ TD.Map = function (facet, config) {
     this.config = config;
     this.unitIds = {};
     this.mapEl = false;
-    this.oneCellPixelSize = 66;
+    this.oneCellPixelSize = 64;
     this.deathAnimations = [];
-
+    this.directionName = ['up', 'right', 'down', 'left'];
 
     this.size  = config.getSize();
 
@@ -112,7 +112,7 @@ TD.Map = function (facet, config) {
     }
 
     this.getDirectionToCenter = function(x, y) {
-        debug('main road directions for x='+x+', y='+y);
+        //debug('main road directions for x='+x+', y='+y);
         var center = this.getCenter().x;
         if (x != center) {
             if (x < center) {
@@ -130,7 +130,7 @@ TD.Map = function (facet, config) {
     }
 
     this.getDirectionForSideRoad = function(x, y) {
-        debug('side road directions for x='+x+', y='+y);
+        //debug('side road directions for x='+x+', y='+y);
         var center = this.getCenter().x;
         if (x == center - 1 || x == center + 1) {
             // unit is on vertical road
@@ -201,7 +201,10 @@ TD.Map = function (facet, config) {
         this.mapEl.html('').width(this.size * this.oneCellPixelSize);
         for (var y = 0; y < this.size; y ++) {
             for (var x = 0; x < this.size; x ++) {
-                var el = $('<div></div>').addClass('tdCell').addClass('emptyCell');
+                var el = $('<div></div>')
+                    .addClass('tdCell')
+                    .addClass('cell-'+x+'-'+y)
+                    .addClass('emptyCell');
                 if ((x >= center - 1 && x <= center + 1)
                     || (y >= center - 1 && y <= center + 1)) {
                     // this cell is part of the road
@@ -215,6 +218,89 @@ TD.Map = function (facet, config) {
                 // empty cell
                 this.mapEl.append(el);
             }
+        }
+        this.drawHelpPath();
+    }
+
+    this.helpPathShowCallback = function(x, y) {
+        return function() {
+            $('.arrow-for-' + x + '-' + y).fadeIn(400);
+        }
+    }
+    this.helpPathHideCallback = function(x, y) {
+        return function() {
+            $('.arrow-for-' + x + '-' + y).clearQueue().hide().css('opacity', 100);
+        }
+    }
+
+    this.drawHelpPath = function() {
+        for (var y = 0; y < this.size; y ++) {
+            for (var x = 0; x < this.size; x ++) {
+                if (x == 0 || x == this.size -1 || y == 0 || y == this.size -1) {
+                    // this is a spawn for bots
+                    var el = $('.cell-'+x+'-'+y);
+                    var d = 0;
+                    if (x == 0) d = 1;
+                    if (x == this.size -1) d = 3;
+                    if (y == 0) d = 2;
+                    if (y == this.size -1) d = 0;
+                    this.drawHelpPathDirection(x, y, d);
+                    if (x == y || (x == 0 && y == this.size - 1) || (x == this.size - 1 && y == 0)) {
+                        // it is corner cell
+                        if (x == 0) {
+                            this.drawHelpPathDirection(x, y, 1);
+                        } else {
+                            this.drawHelpPathDirection(x, y, 3);
+                        }
+                    }
+                    el.bind('mouseenter', this.helpPathShowCallback(x, y))
+                    el.bind('mouseleave', this.helpPathHideCallback(x, y))
+                }
+            }
+        }
+    }
+
+    this.drawHelpPathDirection = function(x, y, d) {
+        var center = this.config.getCenter().x;
+        var isOnMainRoad = false;
+        var isOnSideRoad = false;
+        if (x == center || y == center) {isOnMainRoad = true;}
+        if ((x >= center - 1 && x <= center + 1)
+            || (y >= center - 1 && y <= center + 1)) {isOnSideRoad = true;}
+        var dx = x;
+        var dy = y;
+        while (dx != center || dy != center) {
+
+            var arrow = $('.cell-'+dx+'-'+dy + ' .arrow-' + d);
+            if (!arrow[0]) {
+                var newArrow = $('<div></div>')
+                    .addClass('arrow')
+                    .addClass('arrow-for-' + x + '-' + y)
+                    .addClass('arrow-' + d)
+                    .addClass('fa fa-long-arrow-' + this.directionName[d])
+                $('.cell-'+dx+'-'+dy).append(newArrow)
+            } else {
+                // we have that arrow
+                arrow.addClass('arrow-for-' + x + '-' + y);
+            }
+            switch (d) {
+                case 0: dy--; break;
+                case 1: dx++; break;
+                case 2: dy++; break;
+                case 3: dx--; break;
+            }
+            if (!isOnSideRoad &&
+                ((dx >= center - 1 && dx <= center + 1)
+                || (dy >= center - 1 && dy <= center + 1))) {
+                d = this.getDirectionForSideRoad(dx, dy);
+                isOnSideRoad = true;
+            }
+            if (!isOnMainRoad &&
+                (dx == center || dy == center)) {
+                d = this.getDirectionToCenter(dx, dy);
+                isOnMainRoad = true;
+            }
+
         }
     }
 

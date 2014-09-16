@@ -22,18 +22,19 @@
 
 #tdMap .emptyCell {
     border: 1px solid;
+    position: relative;
 }
 #tdMap .tdUnit {
     font-size: 20px;
-    line-height: 58px;
+    line-height: 60px;
     text-align: center;
     vertical-align: middle;
     margin: 2px;
     border-radius: 4px;
 
     position: absolute;
-    width:58px;
-    height:58px;
+    width:60px;
+    height:60px;
     border: 2px solid lightcoral;
 }
 
@@ -68,4 +69,17 @@
     left:20px;
     width: 20px;
     height: 20px;
+}
+
+#tdMap .arrow {
+    position: absolute;
+    top:32px;
+    left:32px;
+    margin: -10px 0px 0px -10px;
+    /*opacity: 0;*/
+    display: none;
+}
+
+#tdMap .arrow.fa-long-arrow-up, #tdMap .arrow.fa-long-arrow-down {
+    left:36px;
 }
