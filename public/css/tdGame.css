@@ -1,6 +1,7 @@
 
 
 #tdMap {
+
     width:330px;
     position: relative;
 }
@@ -11,27 +12,33 @@
     float:left;
     margin: 2px;
     border-radius: 4px;
-
-
-
 }
+#tdMap .tdCell.main-road {
+    background-color: #F0E5DF;
+}
+#tdMap .tdCell.side-road {
+    background-color: #ffffcc;
+}
+
 #tdMap .emptyCell {
     border: 1px solid;
 }
 #tdMap .tdUnit {
     font-size: 20px;
-    line-height: 60px;
+    line-height: 58px;
     text-align: center;
     vertical-align: middle;
+    margin: 2px;
+    border-radius: 4px;
 
     position: absolute;
-    width:60px;
-    height:60px;
-    border: 1px solid lightcoral;
+    width:58px;
+    height:58px;
+    border: 2px solid lightcoral;
 }
 
 #tdMap .tdUnit.playerUnit {
-    border: 1px solid lawngreen;
+    border-color: lawngreen;
 }
 
 #tdMap .tdButton {

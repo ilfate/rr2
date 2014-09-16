@@ -21,21 +21,17 @@ TD.Unit = function (game) {
     }
 
     this.tick = function() {
-        this.power ++;
         var center = this.game.getCenter();
 //        if (center.x == this.x && center.y == this.y) {
 //            // center power bonus
 //            this.power ++;
 //        }
-        if (!this.active) {
-            // inactive power charge bonus
-            this.power --;
-        }
 
         if (this.active) {
             this.game.checkUnitDirection(this);
         }
         if (this.active) {
+            this.power ++;
             this.move();
         }
     }
@@ -55,6 +51,7 @@ TD.Unit = function (game) {
         this.oldY = this.y;
         this.x = x;
         this.y = y;
+        debug('Unit with power ' + this.power + ' is moving from (' + this.oldX + ', ' + this.oldY + ') to (' + this.x + ', ' + this.y + ')')
     }
 
     this.getId = function() {

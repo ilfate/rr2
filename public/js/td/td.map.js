@@ -8,7 +8,8 @@ TD.Map = function (facet, config) {
     this.config = config;
     this.unitIds = {};
     this.mapEl = false;
-    this.oneCellPixelSize = 65;
+    this.oneCellPixelSize = 66;
+    this.deathAnimations = [];
 
 
     this.size  = config.getSize();
@@ -24,13 +25,11 @@ TD.Map = function (facet, config) {
         return  this.config.getCenter();
     }
 
-    this.setUnit = function(unit, isWinner) {
+    this.setUnit = function(unit) {
 
         if (this.unitIds[unit.x] !== undefined) {
-            if (!isWinner && this.unitIds[unit.x][unit.y] !== undefined) {
-                info ('We can`t put a unit to occupied cell');
-                this.facet.stopGame();
-                return;
+            if (this.unitIds[unit.x][unit.y] !== undefined) {
+                info ('We can`t put a unit to occupied cell (But this is ok some times =_=)');
             }
         } else {
             this.unitIds[unit.x] = {};
@@ -172,6 +171,10 @@ TD.Map = function (facet, config) {
         }
     }
 
+    this.animateDeath = function(unit) {
+        this.deathAnimations.push({'id' : unit.getId(), 'x' : unit.x, 'y': unit.y});
+    }
+
     this.draw = function(units) {
         this.mapEl = $('#tdMap');
         $('#tdMap .tdUnit').addClass('inUpdate');
@@ -181,19 +184,34 @@ TD.Map = function (facet, config) {
                 this.drawUnit(units[key]);
             }
         }
-        $('#tdMap .tdUnit.inUpdate').fadeOut(1000, function(el) {
-            el.remove();
-        });
+        for (var key in this.deathAnimations) {
+            this.drawDeath(this.deathAnimations[key]);
+        }
+//        $('#tdMap .tdUnit.inUpdate').fadeOut(1000, function(el) {
+//            el.remove();
+//        });
+        this.deathAnimations = [];
         this.isDrawn = true;
         // ok map is already there.
     }
 
     this.drawMap = function() {
+        var center = this.getCenter().x;
         this.mapEl = $('#tdMap');
-        this.mapEl.html('');
+        this.mapEl.html('').width(this.size * this.oneCellPixelSize);
         for (var y = 0; y < this.size; y ++) {
             for (var x = 0; x < this.size; x ++) {
                 var el = $('<div></div>').addClass('tdCell').addClass('emptyCell');
+                if ((x >= center - 1 && x <= center + 1)
+                    || (y >= center - 1 && y <= center + 1)) {
+                    // this cell is part of the road
+                    if (x == center || y == center) {
+                        // this cell is part of main road
+                        el.addClass('main-road');
+                    } else {
+                        el.addClass('side-road');
+                    }
+                }
                 // empty cell
                 this.mapEl.append(el);
             }
@@ -233,7 +251,18 @@ TD.Map = function (facet, config) {
             this.mapEl.append(el);
 
         }
+    }
 
+    this.drawDeath = function (deadUnit) {
+        var el = $('.unit-' + deadUnit.id);
+        el.removeClass('inUpdate');
+        el.animate({
+            'left' : deadUnit.x * this.oneCellPixelSize,
+            'top' : deadUnit.y * this.oneCellPixelSize,
+            'opacity' : 0
+        }, 1000, function(el) {
+            $( this ).remove();
+        });
     }
 
     this.makeButtonsforUnit = function(el, unit) {

@@ -6,7 +6,10 @@ function rand(min, max)
 {
     return Math.floor(Math.random()*(max-min+1)+min);
 }
-
+function info(data)
+{
+    console.info(data);
+}
 function debug(data) {
     info(data);
 }
@@ -22,11 +25,23 @@ TD = new TD();
 $(document).ready(function() {
 
     $('body').append('<div id="tdMap"></div>');
-   var game = new TD.Game();
+    var situation = false;
+ //   {'units' : [
+//       {'x': 0, 'y': 1, 'd': 1, 'a':true, 'p': 5, 'o':'player'},
+//       {'x': 1, 'y': 0, 'd': 2, 'a':true, 'p': 5, 'o':'bot'},
+//       {'x': 1, 'y': 2, 'd': 0, 'a':true, 'p': 5, 'o':'player'},
+//       {'x': 2, 'y': 1, 'd': 3, 'a':true, 'p': 5, 'o':'bot'},
+//       {'x': 2, 'y': 2, 'd': 0, 'a':false, 'p': 1, 'o':'player'}
+  //      {'x': 2, 'y': 2, 'd': 2, 'a':true, 'p': 4, 'o':'player'},
+  //      {'x': 2, 'y': 3, 'd': 0, 'a':true, 'p': 3, 'o':'bot'}
+  //  {'x': 3, 'y': 3, 'd': 1, 'a':true, 'p': 35, 'o':'player'},
+  //  {'x': 5, 'y': 3, 'd': 2, 'a':false, 'p': 1, 'o':'player'}
+  //  ]}
+    var game = new TD.Game(situation);
     game.init();
 });
 
-TD.Game = function () {
+TD.Game = function (situation) {
     this.facet      = new TD.Facet(this);
     this.mapConfig  = {};
     this.currentMap = {};
@@ -49,15 +64,30 @@ TD.Game = function () {
 
     this.init = function() {
         this.mapConfig = new TD.Map.Config();
-        this.mapConfig.setSize(5);
+        this.mapConfig.setSize(7);
         this.mapConfig.setSpawn();
 
         this.currentMap = new TD.Map(this.facet, this.mapConfig);
 
         TD.Facet = this.facet;
 
-        this.spawnPlayerUnit();
-        this.spawnBotUnit();
+        if (!situation) {
+
+            this.spawnPlayerUnit();
+            this.spawnBotUnit();
+        } else {
+            // situation emulation
+            for(var key in situation.units) {
+                var unitData = situation.units[key];
+                var unit = new TD.Unit(this);
+                unit.setPosition(unitData.x, unitData.y);
+                unit.setOwner(unitData.o);
+                unit.power = unitData.p;
+                unit.active = unitData.a;
+                unit.direction = unitData.d;
+                unit.init();
+            }
+        }
         this.currentMap.drawMap();
         this.currentMap.draw(this.units);
     }
@@ -74,8 +104,8 @@ TD.Game = function () {
 
     this.removeUnit = function (unit) {
         debug ('remove unit id = ' + unit.getId());
+        this.newMap.animateDeath(unit);
         delete this.units[unit.getId()];
-        //this.newMap.removeUnit(unit);
     }
 
     this.getCenter = function() {
@@ -93,8 +123,10 @@ TD.Game = function () {
         }
         var center = this.currentMap.getCenter();
         var unitIdInCenter = this.currentMap.get(center.x, center.y);
-        if (!unitIdInCenter) {
+        if (!unitIdInCenter || this.units[unitIdInCenter] == undefined) {
             // spawn only if center is empty.
+            debug ('SPAWN ' + unitIdInCenter);
+            debug (this.units);
             var unit = new TD.Unit(this);
             unit.setPosition(center.x, center.y);
             unit.setOwner('player');
@@ -235,7 +267,7 @@ TD.Game = function () {
             } else {
                 debug ('set unit to map without battle p = ' + unit1.power);
                 // there is no one to battle
-                this.newMap.setUnit(unit1);
+                this.newMap.setUnit(unit1, true);
             }
         }
     }
@@ -320,8 +352,4 @@ TD.Game = function () {
     this.stop = function () {
         this.running = false;
     }
-
-
-
-
 }
