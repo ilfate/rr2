@@ -1,9 +1,11 @@
 
 
 #tdMap {
-
-    width:330px;
     position: relative;
+}
+
+* {
+    -webkit-box-sizing: border-box;
 }
 
 #tdMap .tdCell {

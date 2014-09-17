@@ -11,8 +11,11 @@ TD.Map = function (facet, config) {
     this.oneCellPixelSize = 64;
     this.deathAnimations = [];
     this.directionName = ['up', 'right', 'down', 'left'];
+    this.bonuses = [];
+    this.bonusesList = [];
 
-    this.size  = config.getSize();
+    this.size   = config.getSize();
+    this.center = config.getCenter().x;
 
     this.getRandomBotSpawnCell = function() {
         // from 0 to total + 1; There is a very small chance that it actually will be total+1.
@@ -52,6 +55,46 @@ TD.Map = function (facet, config) {
             }
         }
         return false;
+    }
+
+    this.getRandomCoordNotinCenter = function() {
+        if (rand(0, 1) == 1) {
+            return rand(1, this.center - 2)
+        } else {
+            return rand(this.center + 2, this.size - 2);
+        }
+    }
+
+    this.putBonusToMap = function(bonus, x, y) {
+        if (!x && !y) {
+            bonus.x = this.getRandomCoordNotinCenter();
+            bonus.y = this.getRandomCoordNotinCenter();
+            if (this.get(bonus.x, bonus.y)) {
+                debug ('Can`t put bonus under unit!');
+                return false;
+            }
+        }
+        if (this.bonuses[bonus.x] !== undefined) {
+            if (this.bonuses[bonus.x][bonus.y] !== undefined) {
+                debug ('We can`t put a bonus to occupied cell (But this is ok some times =_=)');
+                return false;
+            }
+        } else {
+            this.bonuses[bonus.x] = {};
+        }
+
+        this.bonuses[bonus.x][bonus.y] = bonus;
+        this.bonusesList.push(bonus);
+    }
+
+    this.getBonuses = function (map) {
+        this.bonuses = map.bonuses;
+        for (var key in map.bonusesList) {
+            var bonus = map.bonusesList[key];
+            if (bonus.active) {
+                this.bonusesList.push(bonus);
+            }
+        }
     }
 
     this.getNextCell = function(x, y, d) {

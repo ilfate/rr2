@@ -62,9 +62,11 @@ TD.Game = function (situation) {
     this.spawnBotsEveryTick = 1;
     this.turnsBotWasSpawnd  = 0;
 
+    this.chanceToSpawnBonus = 10;
+
     this.init = function() {
         this.mapConfig = new TD.Map.Config();
-        this.mapConfig.setSize(7);
+        this.mapConfig.setSize(9);
         this.mapConfig.setSpawn();
 
         this.currentMap = new TD.Map(this.facet, this.mapConfig);
@@ -167,6 +169,13 @@ TD.Game = function (situation) {
         this.currentMap.botUnitDirectionSetup(unit);
     }
 
+    this.spawnBonus = function() {
+        if (rand (1, 100) <= this.chanceToSpawnBonus) {
+            var bonus = new TD.Bonus(this);
+            this.currentMap.putBonusToMap(bonus);
+        }
+    }
+
     this.tick = function() {
         if (!this.running) {
             debug('Game will not tick anymore!');
@@ -183,11 +192,15 @@ TD.Game = function (situation) {
         this.duels();
         this.battles();
 
+        this.newMap.getBonuses(this.currentMap);
         this.currentMap = this.newMap;
         this.newMap = {};
 
         // Spawn for player
         this.spawnPlayerUnit();
+        // Spawn Bonus
+        this.handleBonuses();
+        this.spawnBonus();
 
         // Spawn for bot
         this.spawnBotUnit();
@@ -289,6 +302,16 @@ TD.Game = function (situation) {
         this.statsKilledPower += loser.power;
         this.statsLostPower   += loser.power;
         this.statsPoints      += loser.power
+    }
+
+    this.handleBonuses = function () {
+        for(var key in this.currentMap.bonusesList) {
+            var bonus = this.currentMap.bonusesList[key];
+            var unitId = this.currentMap.get(bonus.x, bonus.y);
+            if (unitId && this.units[unitId] != undefined) {
+                bonus.execute(this.units[unitId]);
+            }
+        }
     }
 
     this.userActionMoveUnit = function(unitId, direction) {

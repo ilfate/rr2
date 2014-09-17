@@ -22,10 +22,10 @@ TD.Unit = function (game) {
 
     this.tick = function() {
         var center = this.game.getCenter();
-//        if (center.x == this.x && center.y == this.y) {
-//            // center power bonus
-//            this.power ++;
-//        }
+        if (center.x == this.x && center.y == this.y) {
+            // center power bonus
+            this.power ++;
+        }
 
         if (this.active) {
             this.game.checkUnitDirection(this);
@@ -83,6 +83,36 @@ TD.Unit = function (game) {
     this.deactivate = function() {
         this.active = false;
     }
+}
 
+TD.Bonus = function (game) {
+    this.game   = game;
+    this.id     = 0;
+    this.x      = 0;
+    this.y      = 0;
+    this.active = 1;
+    this.power  = 0;
+    this.type   = '';
 
+    this.possibleTypes = ['plus', 'minus'];
+    this.typesPowers = {'plus' : [1, 5], 'minus' : [1, 5]};
+
+    this.type = this.possibleTypes[(0, this.possibleTypes.length - 1)];
+    this.power = rand(this.typesPowers[this.type][0], this.typesPowers[this.type][1]);
+
+    this.execute = function(unit) {
+        switch (this.type) {
+            case 'plus':
+                unit.power += this.power;
+                break;
+            case 'minus':
+                unit.power -= this.power;
+                if (unit.power <= 0) {
+                    this.game.removeUnit(unit);
+                }
+                break;
+        }
+
+        this.active = false;
+    }
 }
