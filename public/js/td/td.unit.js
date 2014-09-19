@@ -14,6 +14,7 @@ TD.Unit = function (game) {
     this.x         = 0;
     this.y         = 0;
     this.owner     = '';
+    this.isBoss    = false;
 
     this.init = function () {
         this.unitId = this.game.getNewUnitId();
@@ -97,7 +98,7 @@ TD.Bonus = function (game) {
     this.possibleTypes = ['plus', 'minus'];
     this.typesPowers = {'plus' : [1, 5], 'minus' : [1, 5]};
 
-    this.type = this.possibleTypes[(0, this.possibleTypes.length - 1)];
+    this.type = this.possibleTypes[rand(0, this.possibleTypes.length - 1)];
     this.power = rand(this.typesPowers[this.type][0], this.typesPowers[this.type][1]);
 
     this.execute = function(unit) {
@@ -114,5 +115,14 @@ TD.Bonus = function (game) {
         }
 
         this.active = false;
+    }
+
+    this.getText = function() {
+        switch (this.type) {
+            case 'plus':
+                return '+' + this.power;
+            case 'minus':
+                return '-' + this.power;
+        }
     }
 }

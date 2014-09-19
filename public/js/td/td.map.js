@@ -93,6 +93,8 @@ TD.Map = function (facet, config) {
             var bonus = map.bonusesList[key];
             if (bonus.active) {
                 this.bonusesList.push(bonus);
+            } else {
+                delete this.bonuses[bonus.x][bonus.y];
             }
         }
     }
@@ -229,6 +231,14 @@ TD.Map = function (facet, config) {
         }
         for (var key in this.deathAnimations) {
             this.drawDeath(this.deathAnimations[key]);
+        }
+        $('#tdMap .bonus').remove();
+        for (var key in this.bonusesList) {
+            var bonus = this.bonusesList[key];
+            $('.cell-'+bonus.x+'-'+bonus.y).append(
+                $('<div>' + bonus.getText() + '</div>').addClass('bonus').addClass('b-' + bonus.type)
+            );
+
         }
 //        $('#tdMap .tdUnit.inUpdate').fadeOut(1000, function(el) {
 //            el.remove();
@@ -373,6 +383,9 @@ TD.Map = function (facet, config) {
             } else {
                 el.addClass('botUnit');
             }
+            if (unit.isBoss) {
+                el.addClass('boss');
+            }
             el.hide();
             el.css('left', unit.x * this.oneCellPixelSize);
             el.css('top',  unit.y * this.oneCellPixelSize);
@@ -397,7 +410,7 @@ TD.Map = function (facet, config) {
     this.makeButtonsforUnit = function(el, unit) {
         var buttons = [];
         if (unit.active == true) {
-            buttons.push('stop');
+            //buttons.push('stop');
             switch (unit.direction) {
                 case 0: buttons.push('go_1', 'go_2', 'go_3'); break;
                 case 1: buttons.push('go_0', 'go_2', 'go_3'); break;
@@ -455,8 +468,13 @@ TD.Map = function (facet, config) {
                             TD.Facet.userActionMoveUnit(unit.getId(), 3);
                         });
                     break;
+                default :
+                    button = false;
+                    break;
             }
-            el.append(button);
+            if (button) {
+                el.append(button);
+            }
         }
 
     }

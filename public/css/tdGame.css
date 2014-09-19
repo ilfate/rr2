@@ -40,6 +40,10 @@
     border: 2px solid lightcoral;
 }
 
+#tdMap .tdUnit.boss {
+    background-color: #EDA31A;
+}
+
 #tdMap .tdUnit.playerUnit {
     border-color: lawngreen;
 }
@@ -84,4 +88,10 @@
 
 #tdMap .arrow.fa-long-arrow-up, #tdMap .arrow.fa-long-arrow-down {
     left:36px;
+}
+
+#tdMap .bonus{
+    width: 30px;
+    height: 30px;
+    background-color: #bcd42a;
 }

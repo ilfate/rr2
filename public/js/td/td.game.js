@@ -62,7 +62,7 @@ TD.Game = function (situation) {
     this.spawnBotsEveryTick = 1;
     this.turnsBotWasSpawnd  = 0;
 
-    this.chanceToSpawnBonus = 10;
+    this.chanceToSpawnBonus = 25;
 
     this.init = function() {
         this.mapConfig = new TD.Map.Config();
@@ -166,7 +166,23 @@ TD.Game = function (situation) {
         unit.setOwner('bot');
         unit.activate();
         unit.init();
+        this.tryToSpawnBoss(unit);
         this.currentMap.botUnitDirectionSetup(unit);
+    }
+
+    this.tryToSpawnBoss = function(unit) {
+        var timeTillSpawnBoss = 20;
+        var chanceToSpawnBoss = 5;
+        if (this.statsTicksSurvived < timeTillSpawnBoss) {
+            // it is to early for boss
+            return;
+        }
+        if (rand(0, 100) > chanceToSpawnBoss) {
+            // not this time
+            return;
+        }
+        unit.power = rand(5,15);
+        unit.isBoss = true;
     }
 
     this.spawnBonus = function() {
@@ -191,6 +207,7 @@ TD.Game = function (situation) {
         // all unit moved.
         this.duels();
         this.battles();
+        this.handleBonuses();
 
         this.newMap.getBonuses(this.currentMap);
         this.currentMap = this.newMap;
@@ -199,7 +216,6 @@ TD.Game = function (situation) {
         // Spawn for player
         this.spawnPlayerUnit();
         // Spawn Bonus
-        this.handleBonuses();
         this.spawnBonus();
 
         // Spawn for bot
@@ -307,7 +323,7 @@ TD.Game = function (situation) {
     this.handleBonuses = function () {
         for(var key in this.currentMap.bonusesList) {
             var bonus = this.currentMap.bonusesList[key];
-            var unitId = this.currentMap.get(bonus.x, bonus.y);
+            var unitId = this.newMap.get(bonus.x, bonus.y);
             if (unitId && this.units[unitId] != undefined) {
                 bonus.execute(this.units[unitId]);
             }
@@ -316,7 +332,9 @@ TD.Game = function (situation) {
 
     this.userActionMoveUnit = function(unitId, direction) {
         debug('unit move');
-        this.checkUserUnit(unitId);
+        if (!this.checkUserUnit(unitId)) {
+            return;
+        }
         var unit = this.units[unitId];
         if (unit.direction == direction && unit.active == true) {
             this.facet.stopGame();
@@ -345,15 +363,16 @@ TD.Game = function (situation) {
     this.checkUserUnit = function(unitId) {
         if (!unitId || this.units[unitId] == undefined) {
             this.facet.stopGame();
-            debug('unit not found');
-            return;
+            debug('unit not found. unitId = ' + unitId);
+            return false;
         }
         var unit = this.units[unitId];
         if (unit.owner != 'player') {
             this.facet.stopGame();
-            debug('unit don`t belong to user');
-            return;
+            debug('unit don`t belong to user. unitId = ' + unitId);
+            return false;
         }
+        return true;
     }
 
     this.checkLoseConditions = function () {
