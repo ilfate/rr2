@@ -16,6 +16,9 @@ TD.Unit = function (game) {
     this.owner     = '';
     this.isBoss    = false;
 
+    this.notMovingTurns = 0
+    this.turnsForDebuffToStart = 3;
+
     this.init = function () {
         this.unitId = this.game.getNewUnitId();
         this.game.setUnit(this);
@@ -34,10 +37,14 @@ TD.Unit = function (game) {
         if (this.active) {
             this.power ++;
             this.move();
+        } else {
+            this.notMovingDebuff();
         }
     }
 
     this.move = function(x, y) {
+        this.notMovingTurns        = 0;
+        this.turnsForDebuffToStart = 4;
         if (x && y) {
             // move to specified position
         } else {
@@ -53,6 +60,26 @@ TD.Unit = function (game) {
         this.x = x;
         this.y = y;
         debug('Unit with power ' + this.power + ' is moving from (' + this.oldX + ', ' + this.oldY + ') to (' + this.x + ', ' + this.y + ')')
+    }
+
+    this.notMovingDebuff = function() {
+        this.notMovingTurns++;
+        var center = this.game.getCenter().x;
+        if (this.x == center && this.y == center) {
+            return;
+        }
+        if (this.notMovingTurns >= this.turnsForDebuffToStart) {
+            if (rand(0,1) == 1) {
+                this.power--;
+                this.notMovingTurns = 0;
+                if (this.turnsForDebuffToStart > 1) {
+                    this.turnsForDebuffToStart--;
+                }
+                if (this.power <= 0) {
+                    this.game.removeUnit(this);
+                }
+            }
+        }
     }
 
     this.getId = function() {

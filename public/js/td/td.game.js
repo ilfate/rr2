@@ -171,8 +171,10 @@ TD.Game = function (situation) {
     }
 
     this.tryToSpawnBoss = function(unit) {
-        var timeTillSpawnBoss = 20;
-        var chanceToSpawnBoss = 5;
+        var valueIncreasingWithTime = Math.round(this.statsTicksSurvived / 10);
+        var valueIncreasingWithTimeSlow = Math.round(this.statsTicksSurvived / 15);
+        var timeTillSpawnBoss = 10;
+        var chanceToSpawnBoss = 1 + valueIncreasingWithTime;
         if (this.statsTicksSurvived < timeTillSpawnBoss) {
             // it is to early for boss
             return;
@@ -181,7 +183,9 @@ TD.Game = function (situation) {
             // not this time
             return;
         }
-        unit.power = rand(5,15);
+        var minBossPower = 2 + valueIncreasingWithTimeSlow;
+        var maxBossPower = 7 + valueIncreasingWithTimeSlow;
+        unit.power = rand(minBossPower,maxBossPower);
         unit.isBoss = true;
     }
 
