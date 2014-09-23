@@ -232,17 +232,8 @@ TD.Map = function (facet, config) {
         for (var key in this.deathAnimations) {
             this.drawDeath(this.deathAnimations[key]);
         }
-        $('#tdMap .bonus').remove();
-        for (var key in this.bonusesList) {
-            var bonus = this.bonusesList[key];
-            $('.cell-'+bonus.x+'-'+bonus.y).append(
-                $('<div>' + bonus.getText() + '</div>').addClass('bonus').addClass('b-' + bonus.type)
-            );
+        this.drawBonus();
 
-        }
-//        $('#tdMap .tdUnit.inUpdate').fadeOut(1000, function(el) {
-//            el.remove();
-//        });
         this.deathAnimations = [];
         this.isDrawn = true;
         // ok map is already there.
@@ -273,6 +264,17 @@ TD.Map = function (facet, config) {
             }
         }
         this.drawHelpPath();
+    }
+
+    this.drawBonus = function() {
+        $('#tdMap .bonus').remove();
+        for (var key in this.bonusesList) {
+            var bonus = this.bonusesList[key];
+            $('.cell-'+bonus.x+'-'+bonus.y).append(
+                $('<div>' + bonus.getText() + '</div>').addClass('bonus').addClass('b-' + bonus.type)
+            );
+
+        }
     }
 
     this.helpPathShowCallback = function(x, y) {
@@ -370,7 +372,11 @@ TD.Map = function (facet, config) {
             el.animate({
                 'left' : unit.x * this.oneCellPixelSize,
                 'top' : unit.y * this.oneCellPixelSize
-            }, 1000)
+            }, 1000);
+            el  .removeClass('unit-move-0')
+                .removeClass('unit-move-1')
+                .removeClass('unit-move-2')
+                .removeClass('unit-move-3');
         } else {
             // draw new unit
             var el = $('<div></div>')
@@ -391,7 +397,9 @@ TD.Map = function (facet, config) {
             el.css('top',  unit.y * this.oneCellPixelSize);
             el.fadeIn(1000)
             this.mapEl.append(el);
-
+        }
+        if (unit.active) {
+            el.addClass('unit-move-' + unit.direction);
         }
     }
 

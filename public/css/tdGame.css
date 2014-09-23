@@ -37,38 +37,47 @@
     position: absolute;
     width:60px;
     height:60px;
-    border: 2px solid lightcoral;
+    /*border: 2px solid #C26213;*/
+    background-color: #C26213;
 }
 
 #tdMap .tdUnit.boss {
-    background-color: #EDA31A;
+    background-color: #C21348;
 }
 
 #tdMap .tdUnit.playerUnit {
-    border-color: lawngreen;
+    border: 0px;
+    background-color: #30AB22;
+    color: #FFFFFF;
 }
+
+#tdMap .tdUnit.playerUnit.unit-move-0 { border-radius: 30px 30px 4px 4px; }
+#tdMap .tdUnit.playerUnit.unit-move-1 { border-radius: 4px 30px 30px 4px; }
+#tdMap .tdUnit.playerUnit.unit-move-2 { border-radius: 4px 4px 30px 30px; }
+#tdMap .tdUnit.playerUnit.unit-move-3 { border-radius: 30px 4px 4px 30px; }
 
 #tdMap .tdButton {
     position: absolute;
     width:15px;
     height:15px;
+    color: #000000;
 }
 
 #tdMap .tdButton.tdGoTopButton{
-    top:0px;
-    left:21px;
+    top:-4px;
+    left:22px;
 }
 #tdMap .tdButton.tdGoRightButton{
     top:21px;
-    left:41px;
+    left:45px;
 }
 #tdMap .tdButton.tdGoBottomButton{
-    top:41px;
-    left:21px;
+    top:44px;
+    left:22px;
 }
 #tdMap .tdButton.tdGoLeftButton{
     top:21px;
-    left:0px;
+    left:-3px;
 }
 #tdMap .tdButton.tdStopButton{
     top:20px;
@@ -94,4 +103,14 @@
     width: 30px;
     height: 30px;
     background-color: #bcd42a;
+    position: absolute;
+    border-radius: 30px;
+    line-height: 30px;
+    text-align: center;
+    top: 14px;
+    left: 14px;
+}
+
+#tdMap .bonus.b-minus {
+    background-color: #ED7B61;
 }

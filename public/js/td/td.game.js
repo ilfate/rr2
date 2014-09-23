@@ -62,7 +62,7 @@ TD.Game = function (situation) {
     this.spawnBotsEveryTick = 1;
     this.turnsBotWasSpawnd  = 0;
 
-    this.chanceToSpawnBonus = 25;
+    this.chanceToSpawnBonus = 99;
 
     this.init = function() {
         this.mapConfig = new TD.Map.Config();
